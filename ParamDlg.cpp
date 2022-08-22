@@ -86,7 +86,7 @@ void ParamDlg::OnBnClickedButton2()
 	delete edit_freq_vector.back();
 	edit_freq_vector.pop_back();
 	edit_val_vector.back()->Clear();
-	delete edit_val_vector.back();
+	delete edit_val_vector.back(); 
 	edit_val_vector.pop_back();
 	if (box_num == 11)
 		m_add_box.EnableWindow(1);
