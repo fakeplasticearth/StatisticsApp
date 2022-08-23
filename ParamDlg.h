@@ -34,14 +34,17 @@ public:
 	std::vector<CEdit*> edit_val_vector = {};
 	double values[14], rel_freqs[14];
 	int abs_freqs[14];
-	int check_string(CString str);
+	int check_string(CString str, int mode);
 	afx_msg void OnBnClickedButton1();
 	CButton m_delete_box;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedRadio1();
 	afx_msg void OnBnClickedRadio2();
-	bool check_freqs(int method_type); // Проверка частот на соответствие
 	INT m_method_type;
-	int error_status = -1;
+	bool error_type_status[5];
 	afx_msg void OnBnClickedOk();
+	int GetErrorCode(CEdit* edit_box, int mode);
+	bool error_found;
+	void ProcessBoxData(CEdit* edit_box, int mode, int index);
+	CString error_message;
 };

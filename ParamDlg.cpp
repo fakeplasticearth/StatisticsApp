@@ -107,33 +107,21 @@ void ParamDlg::OnBnClickedButton2()
 
 void ParamDlg::OnBnClickedRadio1()
 {
+	m_method_type = 0;
 	SetDlgItemText(IDC_STATIC1, L"Abs. freqs");
 	SetDlgItemText(IDC_STATIC3, L"Abs. freqs");
 }
 
 void ParamDlg::OnBnClickedRadio2()
 {
+	m_method_type = 1;
 	SetDlgItemText(IDC_STATIC1, L"Rel. freqs");
 	SetDlgItemText(IDC_STATIC3, L"Rel. freqs");
 }
 
-bool ParamDlg::check_freqs(int method_type)
-{
-	/*
-	CString buff, text_buff;
-	CWnd* myWnd = GetActiveWindow();
-	CEdit* first_freq_box = reinterpret_cast<CEdit*>(myWnd->GetDlgItem(IDC_EDIT1));
 
-	int len = first_freq_box->LineLength();
-	first_freq_box->GetLine(0, text_buff.GetBuffer(len), len);
-	text_buff.ReleaseBuffer(len);
-	*/
-
-	return 0;
-}
-
-
-int ParamDlg::check_string(CString str) {
+int ParamDlg::check_string(CString str, int mode) {
+	//Input: str - text string from edit box, mode - 0 for decimal input rule, 1 for floating point number rule
 	int dot_num = 0;
 	if (str.GetLength() == 0)
 		return EMPTY_BOX;
@@ -146,21 +134,85 @@ int ParamDlg::check_string(CString str) {
 		else if (!isdigit(str[i]))
 			return NOT_A_NUMBER;
 	}
-	if ((m_method_type == 0) && (dot_num > 0))
+	if ((mode == 0) && (dot_num > 0))
 		return NOT_AN_INT;
 	return -1;
 }
 
+int ParamDlg::GetErrorCode(CEdit* edit_box, int mode) {
+	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for relative frequency box and value box
+	// Output: code of error
+
+	CString buff;
+	int len = edit_box->LineLength();
+	edit_box->GetLine(0, buff.GetBuffer(len), len);
+	buff.ReleaseBuffer(len);
+	return check_string(buff, mode);
+}
+
+CString GetErrorMessage(int error_code) {
+	switch (error_code) {
+	case NOT_A_NUMBER:
+		return L"Please enter only numbers.\n";
+	case NOT_AN_INT:
+		return L"Absolute frequencies must be decimal numbers.\n";
+	case EMPTY_BOX:
+		return L"Please complete all created boxes.\n";
+	case SUM_MORE_THAN_ONE:
+		return L"Sum of relative frequencies must be 1.\n";
+	default:
+		return L"";
+	}
+}
+
+void ParamDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
+	/*Input: edit_box_id - id of edit box, 
+	* mode - 0 for absolute frequency box, 1 for relative frequency box, 2 for value box 
+	* index - index for saving values to class fields
+	*/
+	int error_code = GetErrorCode(edit_box, m_method_type);
+	if (error_code > -1) {
+		error_found = 1;
+		if (error_type_status[error_code] == 0) {
+			error_type_status[error_code] = 1;
+			error_message += GetErrorMessage(error_code);
+		}
+
+	}
+	else if (!error_found) {
+		CString buff;
+		int len = edit_box->LineLength();
+		edit_box->GetLine(0, buff.GetBuffer(len), len);
+		buff.ReleaseBuffer(len);
+		switch (mode) {
+		case 0:
+			abs_freqs[index] = _wtoi(buff);
+			break;
+		case 1:
+			rel_freqs[index] = _wtof(buff);
+			break;
+		case 2:
+			values[index] = _wtoi(buff);
+		}
+	}
+}
+
 void ParamDlg::OnBnClickedOk()
 {
-	// TODO: добавьте свой код обработчика уведомлений
-	CString buff, freq_buff;
-	CEdit* first_freq_box = (CEdit*)GetDlgItem(IDC_EDIT2);
-	int len = first_freq_box->LineLength();
-	first_freq_box->GetLine(0, freq_buff.GetBuffer(len), len);
-	freq_buff.ReleaseBuffer(len);
-	int tmp = check_string(freq_buff);
+	error_found = 0;
+	error_message = L"";
+	for (int i = 0; i < 3; ++i)
+		error_type_status[i] = 0;
+	
+	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT2), m_method_type, 0);
+	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT1), 2, 0);
+	for (int i = 0; i < box_num; ++i) {
+		ProcessBoxData(edit_freq_vector[i], m_method_type, i + 1);
+		ProcessBoxData(edit_val_vector[i], 2, i + 1);
+	}
 
-
-	CDialog::OnOK();
+	if (error_found)
+		AfxMessageBox(error_message);
+	else
+		CDialog::OnOK();
 }

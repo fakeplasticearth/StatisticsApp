@@ -136,8 +136,6 @@ void CBPv1View::OnParameters()
 	d.box_num = 0;
 	if (d.DoModal() == IDOK) {
 
-		int check_result = d.check_freqs(d.m_method_type);
-
 		
 		CClientDC dc(this);
 		/*
