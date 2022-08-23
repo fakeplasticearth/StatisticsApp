@@ -30,7 +30,7 @@ BEGIN_MESSAGE_MAP(CBPv1View, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CBPv1View::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
-	ON_COMMAND(ID_HISTOGRAM, &CBPv1View::OnHistogram)
+	ON_COMMAND(ID_PARAMETERS, &CBPv1View::OnParameters)
 END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1View
@@ -130,12 +130,46 @@ CBPv1Doc* CBPv1View::GetDocument() const // встроена неотлажен�
 // Обработчики сообщений CBPv1View
 
 
-void CBPv1View::OnHistogram()
+void CBPv1View::OnParameters()
 {
 	ParamDlg d;
 	d.box_num = 0;
 	if (d.DoModal() == IDOK) {
 
+		int check_result = d.check_freqs(d.m_method_type);
+
+		
+		CClientDC dc(this);
+		/*
+		CBrush brushBlue(RGB(0, 0, 255));
+		CBrush* pOldBrush = dc.SelectObject(&brushBlue);
+
+		// create and select a thick, black pen
+		CPen penBlack;
+		penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+		CPen* pOldPen = dc.SelectObject(&penBlack);
+
+		// get our client rectangle
+		CRect rect;
+		GetClientRect(rect);
+
+		// shrink our rect 20 pixels in each direction
+		rect.DeflateRect(20, 20);
+
+		// draw a thick black rectangle filled with blue
+		dc.Rectangle(rect);
+
+		// put back the old objects
+		dc.SelectObject(pOldBrush);
+		dc.SelectObject(pOldPen);
+		*/
+		POINT a = { 10, 10 };
+		POINT b = { 40, 40 };
+		CRect rect1(a, b);
+		CBrush brush(RGB(200, 10, 10));
+		dc.FillRect(&rect1, &brush);
+
+		
 	}
 	// TODO: добавьте свой код обработчика команд
 }

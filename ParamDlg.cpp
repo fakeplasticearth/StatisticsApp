@@ -20,6 +20,7 @@ IMPLEMENT_DYNAMIC(ParamDlg, CDialog)
 
 ParamDlg::ParamDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_DIALOG1, pParent)
+	, m_method_type(0)
 {
 
 }
@@ -33,6 +34,7 @@ void ParamDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_BUTTON1, m_add_box);
 	DDX_Control(pDX, IDC_BUTTON2, m_delete_box);
+	DDX_Radio(pDX, IDC_RADIO1, m_method_type);
 }
 
 
@@ -41,6 +43,7 @@ BEGIN_MESSAGE_MAP(ParamDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON2, &ParamDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_RADIO1, &ParamDlg::OnBnClickedRadio1)
 	ON_BN_CLICKED(IDC_RADIO2, &ParamDlg::OnBnClickedRadio2)
+	ON_BN_CLICKED(IDOK, &ParamDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -112,4 +115,52 @@ void ParamDlg::OnBnClickedRadio2()
 {
 	SetDlgItemText(IDC_STATIC1, L"Rel. freqs");
 	SetDlgItemText(IDC_STATIC3, L"Rel. freqs");
+}
+
+bool ParamDlg::check_freqs(int method_type)
+{
+	/*
+	CString buff, text_buff;
+	CWnd* myWnd = GetActiveWindow();
+	CEdit* first_freq_box = reinterpret_cast<CEdit*>(myWnd->GetDlgItem(IDC_EDIT1));
+
+	int len = first_freq_box->LineLength();
+	first_freq_box->GetLine(0, text_buff.GetBuffer(len), len);
+	text_buff.ReleaseBuffer(len);
+	*/
+
+	return 0;
+}
+
+
+int ParamDlg::check_string(CString str) {
+	int dot_num = 0;
+	if (str.GetLength() == 0)
+		return EMPTY_BOX;
+
+	for (int i = 0; i < str.GetLength(); ++i) {
+		if ((str[i] == '.') && dot_num)
+			return NOT_A_NUMBER;
+		else if (str[i] == '.')
+			++dot_num;
+		else if (!isdigit(str[i]))
+			return NOT_A_NUMBER;
+	}
+	if ((m_method_type == 0) && (dot_num > 0))
+		return NOT_AN_INT;
+	return -1;
+}
+
+void ParamDlg::OnBnClickedOk()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	CString buff, freq_buff;
+	CEdit* first_freq_box = (CEdit*)GetDlgItem(IDC_EDIT2);
+	int len = first_freq_box->LineLength();
+	first_freq_box->GetLine(0, freq_buff.GetBuffer(len), len);
+	freq_buff.ReleaseBuffer(len);
+	int tmp = check_string(freq_buff);
+
+
+	CDialog::OnOK();
 }

@@ -1,6 +1,12 @@
 ﻿#pragma once
 #include <vector>
 #include <iostream>
+#include <string>
+
+#define NOT_A_NUMBER 0
+#define NOT_AN_INT 1
+#define EMPTY_BOX 2
+#define SUM_MORE_THAN_ONE 3
 
 
 // Диалоговое окно ParamDlg
@@ -26,9 +32,16 @@ public:
 	unsigned int box_num = 0; // количество созданных edit box
 	std::vector<CEdit*> edit_freq_vector = {};
 	std::vector<CEdit*> edit_val_vector = {};
+	double values[14], rel_freqs[14];
+	int abs_freqs[14];
+	int check_string(CString str);
 	afx_msg void OnBnClickedButton1();
 	CButton m_delete_box;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedRadio1();
 	afx_msg void OnBnClickedRadio2();
+	bool check_freqs(int method_type); // Проверка частот на соответствие
+	INT m_method_type;
+	int error_status = -1;
+	afx_msg void OnBnClickedOk();
 };

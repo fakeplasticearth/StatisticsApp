@@ -44,7 +44,7 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnHistogram();
+	afx_msg void OnParameters();
 };
 
 #ifndef _DEBUG  // версия отладки в BPv1View.cpp

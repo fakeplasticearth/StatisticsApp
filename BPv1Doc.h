@@ -9,6 +9,10 @@
 #include <iomanip>
 #include "R64M.hpp"
 
+#define NOT_A_NUMBER 0
+#define NOT_AN_INT 1
+#define SUM_MORE_THAN_ONE 2
+
 
 
 class CBPv1Doc : public CDocument
