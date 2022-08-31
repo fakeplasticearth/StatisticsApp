@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "BPv1Doc.h"
 
-PrimitiveSample::PrimitiveSample(const Distribution& distr) : Sample(distr) {
+PrimitiveSample::PrimitiveSample(const Distribution& distr, int freq_sum) : Sample(distr) {
 	//–асчет на то, что частоты вместе со значени€ми отсортированы (по значени€м)
-	for (int i = 0; i < distr.get_size(); ++i)
-		util_size += distr.get_ith_freq(i);
+	util_size = freq_sum;
 	util_arr = new unsigned int[util_size];
-	for (int j = 0, i = 0; j < distr.get_size(); i += distr.get_ith_freq(j), ++j) {
-		for (int z = i; z < i + distr.get_ith_freq(j); ++z)
+	for (int j = 0, i = 0; j < distr.get_size(); i += (int)(distr.get_ith_freq(j) * freq_sum), ++j) {
+		for (int z = i; z < i + (int)(distr.get_ith_freq(j) * freq_sum); ++z)
 			util_arr[z] = j;
 	}
 }
@@ -29,7 +28,6 @@ PrimitiveSample& PrimitiveSample::operator=(PrimitiveSample& other) {
 
 unsigned int PrimitiveSample::gen_col_index() {
 	double res = rnunif();
-	std::cout << res << ' ';
 	return util_arr[(int)(rnunif() * util_size)];
 }
 

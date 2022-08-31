@@ -88,13 +88,13 @@
 #define IDC_BUTTON2                     1002
 #define IDC_EDIT1                       1003
 #define IDC_EDIT2                       1004
+#define IDC_EDIT3						1005
 #define IDC_STATIC1                     1007
 #define IDC_STATIC3                     1008
 #define IDC_STATIC4                     1009
 #define IDC_RADIO1                      1010
 #define IDC_RADIO2                      1011
 #define ID_HISTOGRAM                    32771
-#define ID_PARAMETERS                   32772
 
 // Next default values for new objects
 // 

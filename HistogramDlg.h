@@ -1,39 +1,32 @@
-п»ї#pragma once
-#include <vector>
-#include <iostream>
-#include <string>
+#pragma once
+#include "pch.h"
+#include "BPv1Doc.h"
 
-#define NOT_A_NUMBER 0
-#define NOT_AN_INT 1
-#define EMPTY_BOX 2
-#define SUM_MORE_THAN_ONE 3
-
-
-// Р”РёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ ParamDlg
-
-class ParamDlg : public CDialog
+class HistogramDlg : public CDialog
 {
-	DECLARE_DYNAMIC(ParamDlg)
+	DECLARE_DYNAMIC(HistogramDlg)
 
 public:
-	ParamDlg(CWnd* pParent = nullptr);   // СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
-	virtual ~ParamDlg();
+	HistogramDlg(CWnd* pParent = nullptr);   // стандартный конструктор
+	virtual ~HistogramDlg();
 
-// Р”Р°РЅРЅС‹Рµ РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°
+	// Данные диалогового окна
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DIALOG1 };
 #endif
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // РїРѕРґРґРµСЂР¶РєР° DDX/DDV
+	virtual void DoDataExchange(CDataExchange* pDX);    // поддержка DDX/DDV
 	DECLARE_MESSAGE_MAP()
 public:
+	int abs_freqs[14];
+	double values[14];
 	CButton m_add_box;
-	unsigned int box_num = 0; // РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕР·РґР°РЅРЅС‹С… edit box
+	unsigned int box_num = 0; // количество созданных edit box
+	bool init_mode = 1;
+	CFont* box_font;
 	std::vector<CEdit*> edit_freq_vector = {};
 	std::vector<CEdit*> edit_val_vector = {};
-	double values[14], rel_freqs[14];
-	int abs_freqs[14];
 	int check_string(CString str, int mode);
 	afx_msg void OnBnClickedButton1();
 	CButton m_delete_box;
@@ -47,4 +40,7 @@ public:
 	bool error_found;
 	void ProcessBoxData(CEdit* edit_box, int mode, int index);
 	CString error_message;
+	void fill_values(CBPv1Doc* doc);
+	BOOL OnInitDialog();
+	int m_sample_size;
 };

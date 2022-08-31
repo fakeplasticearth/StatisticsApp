@@ -17,5 +17,6 @@ ChenSample& ChenSample::operator=(ChenSample& other) {
 }
 
 unsigned int ChenSample::gen_col_index() {
+
 	return 0;
 }

@@ -60,7 +60,7 @@
     <ClInclude Include="R64M.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ParamDlg.h">
+    <ClInclude Include="HistogramDlg.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,9 +95,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="ParamDlg.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Distribution.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -114,6 +111,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="PROBDIST.CPP">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Chi2Histogram.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="HistogramDlg.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

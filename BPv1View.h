@@ -17,7 +17,8 @@ public:
 
 // Операции
 public:
-
+	void draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2);
+	void draw_histogram(CDC* dc);
 // Переопределение
 public:
 	virtual void OnDraw(CDC* pDC);  // переопределено для отрисовки этого представления
@@ -44,7 +45,7 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnParameters();
+	afx_msg void OnHistogram();
 };
 
 #ifndef _DEBUG  // версия отладки в BPv1View.cpp

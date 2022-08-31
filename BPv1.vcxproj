@@ -189,9 +189,9 @@
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HistogramDlg.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputWnd.h" />
-    <ClInclude Include="ParamDlg.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PROBDIST.H" />
     <ClInclude Include="PropertiesWnd.h" />
@@ -205,12 +205,13 @@
     <ClCompile Include="BPv1Doc.cpp" />
     <ClCompile Include="BPv1View.cpp" />
     <ClCompile Include="ChenSample.cpp" />
+    <ClCompile Include="Chi2Histogram.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="Distribution.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
-    <ClCompile Include="ParamDlg.cpp" />
+    <ClCompile Include="HistogramDlg.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

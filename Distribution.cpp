@@ -49,7 +49,7 @@ unsigned int Distribution::get_size() const {
 	return size;
 }
 
-double Distribution::get_ith_value(unsigned int index) {
+double Distribution::get_ith_value(unsigned int index) const{
 	return values[index];
 }
 
@@ -70,5 +70,31 @@ void Distribution::print_i() {
 	std::cout << "\nDistr freqs: \n";
 	for (int i = 0; i < size; ++i) {
 		std::cout << std::setw(4) << freqs[i] << ' ';
+	}
+}
+
+void Distribution::set_parameters(double* values_, int* abs_freqs_, int size_, int sum_freqs_) {
+	delete[]values;
+	delete[]freqs;
+	values = new double[size_ + 2];
+	freqs = new double[size_ + 2];
+	size = size_;
+	for (int i = 0; i < size; ++i) {
+		values[i] = values_[i];
+		freqs[i] = 1.0 * abs_freqs_[i] / sum_freqs_;
+	}
+}
+
+void Distribution::set_parameters(const Distribution& distr) {
+	if (values) {
+		delete[]values;
+		delete[]freqs;
+	}
+	size = distr.get_size();
+	values = new double[size + 2];
+	freqs = new double[size + 2];
+	for (int i = 0; i < size; ++i) {
+		values[i] = distr.get_ith_value(i);
+		freqs[i] = distr.get_ith_freq(i);
 	}
 }

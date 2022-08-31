@@ -12,7 +12,7 @@
 
 #include "BPv1Doc.h"
 #include "BPv1View.h"
-#include "ParamDlg.h"
+#include "HistogramDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,7 +30,7 @@ BEGIN_MESSAGE_MAP(CBPv1View, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CBPv1View::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
-	ON_COMMAND(ID_PARAMETERS, &CBPv1View::OnParameters)
+	ON_COMMAND(ID_HISTOGRAM, &CBPv1View::OnHistogram)
 END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1View
@@ -55,14 +55,23 @@ BOOL CBPv1View::PreCreateWindow(CREATESTRUCT& cs)
 
 // Рисование CBPv1View
 
-void CBPv1View::OnDraw(CDC* /*pDC*/)
+void CBPv1View::OnDraw(CDC* pDC)
 {
-	CBPv1Doc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
+	CBPv1Doc* doc = GetDocument();
+	ASSERT_VALID(doc);
+	if (!doc)
 		return;
 
 	// TODO: добавьте здесь код отрисовки для собственных данных
+
+	switch (doc->draw_mode) {
+	case 0:
+		break;
+	case 1:
+		draw_histogram(pDC);
+	default:
+		break;
+	}
 }
 
 
@@ -129,45 +138,73 @@ CBPv1Doc* CBPv1View::GetDocument() const // встроена неотлажен�
 
 // Обработчики сообщений CBPv1View
 
+void CBPv1View::draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2) {
+	CBrush brushBlue(RGB(0, 0, 255));
+	CBrush* pOldBrush = dc->SelectObject(&brushBlue);
 
-void CBPv1View::OnParameters()
+	// create and select a thick, black pen
+	CPen penBlack;
+	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	CPen* pOldPen = dc->SelectObject(&penBlack);
+
+	// get our client rectangle
+	POINT tmp1 = { x1, y1 }, tmp2 = {x2, y2};
+	CRect rect(tmp1, tmp2);
+	dc->Rectangle(rect);
+
+	// put back the old objects
+	dc->SelectObject(pOldBrush);
+	dc->SelectObject(pOldPen);
+}
+
+void CBPv1View::draw_histogram(CDC* dc) {
+	CPen penBlack;
+	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	CPen* pOldPen = dc->SelectObject(&penBlack);
+
+	CRect rc;
+	GetClientRect(&rc);
+	int rc_width = rc.Width(), rc_height = rc.Height();
+
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.95 * rc_width, 0.95 * rc_height);
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.05 * rc_width, 0.05 * rc_height);
+	dc->SelectObject(pOldPen);
+}
+
+void CBPv1View::OnHistogram()
 {
-	ParamDlg d;
-	d.box_num = 0;
+	CBPv1Doc* doc = GetDocument();
+	HistogramDlg d;
+	d.fill_values(doc);
+
 	if (d.DoModal() == IDOK) {
+		doc->draw_mode = 1;
+		doc->sum_freqs_h0 = 0;
+		for (int i = 0; i < d.box_num + 1; ++i) {
+			doc->sum_freqs_h0 += d.abs_freqs[i];
+		}
 
-		
-		CClientDC dc(this);
-		/*
-		CBrush brushBlue(RGB(0, 0, 255));
-		CBrush* pOldBrush = dc.SelectObject(&brushBlue);
+		doc->d0.set_parameters(d.values, d.abs_freqs, d.box_num + 1, doc->sum_freqs_h0);
+		doc->method_type = d.m_method_type;
+		doc->sample_size = d.m_sample_size;
+		if (doc->s)
+			doc->s->set_parameters(doc->d0);
+		else {
+			switch (doc->method_type) {
+			case 0:
+				doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
+				break;
+			case 1:
+				doc->s = new ChenSample(doc->d0);
+			}
+		}
+		doc->s->simulate(doc->sample_size);
+		doc->chi2histogram.SetData(*doc->s, doc->d0);
 
-		// create and select a thick, black pen
-		CPen penBlack;
-		penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
-		CPen* pOldPen = dc.SelectObject(&penBlack);
-
-		// get our client rectangle
-		CRect rect;
-		GetClientRect(rect);
-
-		// shrink our rect 20 pixels in each direction
-		rect.DeflateRect(20, 20);
-
-		// draw a thick black rectangle filled with blue
-		dc.Rectangle(rect);
-
-		// put back the old objects
-		dc.SelectObject(pOldBrush);
-		dc.SelectObject(pOldPen);
-		*/
-		POINT a = { 10, 10 };
-		POINT b = { 40, 40 };
-		CRect rect1(a, b);
-		CBrush brush(RGB(200, 10, 10));
-		dc.FillRect(&rect1, &brush);
-
-		
+		doc->UpdateAllViews(0);
 	}
 	// TODO: добавьте свой код обработчика команд
 }
+
