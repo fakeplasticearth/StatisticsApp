@@ -2,7 +2,6 @@
 #include "BPv1Doc.h"
 
 PrimitiveSample::PrimitiveSample(const Distribution& distr, int freq_sum) : Sample(distr) {
-	//–асчет на то, что частоты вместе со значени€ми отсортированы (по значени€м)
 	util_size = freq_sum;
 	util_arr = new unsigned int[util_size];
 	for (int j = 0, i = 0; j < distr.get_size(); i += (int)(distr.get_ith_freq(j) * freq_sum), ++j) {
@@ -39,10 +38,16 @@ unsigned int PrimitiveSample::get_util_arr_ith_value(unsigned int index) const {
 	return util_arr[index];
 }
 
-void PrimitiveSample::check() {
-	std::cout << "\nUtil arr size: " << util_size;
-	std::cout << "Util values:\n";
-	for (int i = 0; i < util_size; ++i) {
-		std::cout << std::setw(4) << util_arr[i];
+PrimitiveSample::~PrimitiveSample() {
+	if (size != 0)
+		delete[]values;
+	if (distribution.get_size() != 0) {
+		delete[]grouped_points;
 	}
+	delete[]util_arr;
+	util_arr = nullptr;
+	grouped_points = nullptr;
+	values = nullptr;
+	size = 0;
+	distribution.~Distribution();
 }

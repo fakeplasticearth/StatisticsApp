@@ -12,7 +12,7 @@ Sample::Sample(const Distribution& distr) : distribution(distr) {
 	}
 }
 
-Sample::Sample(const Sample& other) noexcept : size(other.size), distribution(other.distribution) {
+Sample::Sample(const Sample& other): size(other.size), distribution(other.distribution) {
 	values = new double[other.size];
 	grouped_points = new point_emp[other.distribution.get_size()];
 
@@ -41,11 +41,10 @@ Sample::~Sample() {
 }
 
 void Sample::simulate(unsigned int new_size) {
-	if (size != 0) {
-		delete[]values;
-		for (int i = 0; i < distribution.get_size(); ++i) {
-			grouped_points[i].freq = 0;
-		}
+	delete[]values;
+	for (int i = 0; i < distribution.get_size(); ++i) {
+		grouped_points[i].freq = 0;
+		grouped_points[i].value = distribution.get_ith_value(i);
 	}
 	size = new_size;
 	values = new double[size];
@@ -53,22 +52,6 @@ void Sample::simulate(unsigned int new_size) {
 		unsigned int index = gen_col_index();
 		values[i] = distribution.get_ith_value(index);
 		grouped_points[index].freq++;
-	}
-}
-
-void Sample::print_i() {
-	distribution.print_i();
-	std::cout << "\n \n Size: " << size << '\n' << "Values:\n";
-	for (int i = 0; i < size; ++i) {
-		std::cout << std::setw(4) << values[i] << ' ';
-	}
-	std::cout << "\nGrouped values:\n";
-	for (int i = 0; i < distribution.get_size(); ++i) {
-		std::cout << std::setw(4) << grouped_points[i].value << ' ';
-	}
-	std::cout << "\nGrouped freqs:\n";
-	for (int i = 0; i < distribution.get_size(); ++i) {
-		std::cout << std::setw(4) << grouped_points[i].freq << ' ';
 	}
 }
 
