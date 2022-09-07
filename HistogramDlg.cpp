@@ -22,8 +22,12 @@ HistogramDlg::HistogramDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_DIALOG1, pParent)
 	, m_method_type(0)
 	, m_sample_size(0)
+	, error_found(0)
 {
-	
+	for (int i = 0; i < 12; ++i) {
+		values[i] = 0.;
+		abs_freqs[i] = 0;
+	}
 }
 
 HistogramDlg::~HistogramDlg()
@@ -137,23 +141,36 @@ int HistogramDlg::check_string(CString str, int mode) {
 			return NOT_A_NUMBER;
 		else if (str[i] == '.')
 			++dot_num;
+		else if (str[i] == '-') {
+			if (i)
+				return NOT_A_NUMBER;
+		}
 		else if (!isdigit(str[i]))
 			return NOT_A_NUMBER;
 	}
 	if ((mode == 0) && (dot_num > 0))
 		return NOT_AN_INT;
+
 	return -1;
 }
 
 int HistogramDlg::GetErrorCode(CEdit* edit_box, int mode) {
-	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box
+	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box
 	// Output: code of error
 
 	CString buff;
 	int len = edit_box->LineLength();
 	edit_box->GetLine(0, buff.GetBuffer(len), len);
 	buff.ReleaseBuffer(len);
-	return check_string(buff, mode);
+	if (mode == 2) {
+		int code = check_string(buff, 0);
+		if (code == NOT_AN_INT)
+			return NOT_AN_INT_SAMPLE_SIZE;
+		else
+			return code;
+	}
+	else
+		return check_string(buff, mode);
 }
 
 CString GetErrorMessage(int error_code) {
@@ -164,8 +181,14 @@ CString GetErrorMessage(int error_code) {
 		return L"Absolute frequencies must be decimal numbers.\n";
 	case EMPTY_BOX:
 		return L"Please complete all created boxes.\n";
-	case SUM_MORE_THAN_ONE:
-		return L"Sum of relative frequencies must be 1.\n";
+	case INVALID_FREQ:
+		return L"Absolute frequencies must be greater than 0.\n";
+	case COINCIDING_VALUES:
+		return L"Values should not coincide.\n";
+	case NOT_AN_INT_SAMPLE_SIZE:
+		return L"Sample size must be decimal number.\n";
+	case INVALID_SAMPLE_SIZE:
+		return L"Sample size must be greater than 0.\n";
 	default:
 		return L"";
 	}
@@ -173,7 +196,7 @@ CString GetErrorMessage(int error_code) {
 
 void HistogramDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
 	/*Input: edit_box_id - id of edit box, 
-	* mode - 0 for absolute frequency box, 1 for value box 
+	* mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box 
 	* index - index for saving values to class fields
 	*/
 	int error_code = GetErrorCode(edit_box, mode);
@@ -190,13 +213,28 @@ void HistogramDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
 		int len = edit_box->LineLength();
 		edit_box->GetLine(0, buff.GetBuffer(len), len);
 		buff.ReleaseBuffer(len);
-		switch (mode) {
-		case 0:
-			abs_freqs[index] = _wtoi(buff);
-			break;
-		case 1:
+		if (mode == 1) {
 			values[index] = _wtof(buff);
-			break;
+		}
+		else {
+			int freq_val = _wtoi(buff);
+			if (freq_val <= 0) {
+				error_found = 1;
+				if (mode == 0) {
+					if (error_type_status[INVALID_FREQ] == 0) {
+						error_type_status[INVALID_FREQ] = 1;
+						error_message += GetErrorMessage(INVALID_FREQ);
+					}
+				}
+				else {
+					if (error_type_status[INVALID_SAMPLE_SIZE] == 0) {
+						error_type_status[INVALID_SAMPLE_SIZE] = 1;
+						error_message += GetErrorMessage(INVALID_SAMPLE_SIZE);
+					}
+				}
+			}
+			else if (mode == 0)
+				abs_freqs[index] = freq_val;
 		}
 	}
 }
@@ -206,7 +244,7 @@ void HistogramDlg::OnBnClickedOk()
 	
 	error_found = 0;
 	error_message = L"";
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 7; ++i)
 		error_type_status[i] = 0;
 	
 	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT2), 0, 0);
@@ -216,10 +254,22 @@ void HistogramDlg::OnBnClickedOk()
 		ProcessBoxData(edit_val_vector[i], 1, i + 1);
 	}
 
+	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT3), 2, 0);
+
 	if (error_found)
 		AfxMessageBox(error_message);
 	else {
-		CDialog::OnOK();
+		bool match = 0;
+		for (int i = 0; i < box_num + 1; ++i)
+			for (int j = i + 1; j < box_num + 1; ++j) {
+				if (values[i] == values[j])
+					match = 1;
+			}
+
+		if (!match)
+			CDialog::OnOK();
+		else
+			AfxMessageBox(error_message + GetErrorMessage(COINCIDING_VALUES));
 	}
 }
 

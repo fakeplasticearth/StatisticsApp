@@ -34,7 +34,7 @@ public:
 	afx_msg void OnBnClickedRadio1();
 	afx_msg void OnBnClickedRadio2();
 	INT m_method_type;
-	bool error_type_status[5];
+	bool error_type_status[9];
 	afx_msg void OnBnClickedOk();
 	int GetErrorCode(CEdit* edit_box, int mode);
 	bool error_found;

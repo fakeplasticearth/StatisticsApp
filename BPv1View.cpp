@@ -138,9 +138,17 @@ CBPv1Doc* CBPv1View::GetDocument() const // встроена неотлажен�
 
 // Обработчики сообщений CBPv1View
 
-void CBPv1View::draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2) {
-	CBrush brushBlue(RGB(0, 0, 255));
-	CBrush* pOldBrush = dc->SelectObject(&brushBlue);
+void CBPv1View::draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2, int mode) {
+	//mode - 0 for theoretical bar, 1 for empirical bar, 2 for white rectangle (for legend)
+	COLORREF bar_color;
+	if (mode == 0)
+		bar_color = RGB(0, 0, 255);
+	else if (mode == 1)
+		bar_color = RGB(255, 0, 0);
+	else if (mode == 2)
+		bar_color = RGB(0, 0, 0);
+	CBrush brush(bar_color);
+	CBrush* pOldBrush = dc->SelectObject(&brush);
 
 	// create and select a thick, black pen
 	CPen penBlack;
@@ -158,6 +166,7 @@ void CBPv1View::draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2) {
 }
 
 void CBPv1View::draw_histogram(CDC* dc) {
+	CBPv1Doc* doc = GetDocument();
 	CPen penBlack;
 	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
 	CPen* pOldPen = dc->SelectObject(&penBlack);
@@ -166,10 +175,103 @@ void CBPv1View::draw_histogram(CDC* dc) {
 	GetClientRect(&rc);
 	int rc_width = rc.Width(), rc_height = rc.Height();
 
+	//Axis separator
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.03 * rc_width, 0.97 * rc_height);
+
+	//Values axis
 	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
 	dc->LineTo(0.95 * rc_width, 0.95 * rc_height);
+
+	//Frequencies axis
 	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
 	dc->LineTo(0.05 * rc_width, 0.05 * rc_height);
+
+	//0 for frequency axis
+	dc->TextOut(0.05 * rc_width - 16, 0.95 * rc_height - 14, L"0");
+
+	double max_mark;
+	if (doc->chi2histogram.get_size() == 1)
+		max_mark = 0.55;
+	else
+		max_mark = 0.8;
+
+	//Max value mark
+	dc->MoveTo(max_mark * rc_width, 0.95 * rc_height - 4);
+	dc->LineTo(max_mark * rc_width, 0.95 * rc_height + 4);
+	CString tmp;
+	tmp.Format(L"%g", doc->chi2histogram.hist_max_value);
+	dc->TextOut(max_mark * rc_width - 4, 0.95 * rc_height + 8, tmp);
+
+	//Max frequency mark
+	dc->MoveTo(0.05 * rc_width - 4, int(0.2 * rc_height) + 1);
+	dc->LineTo(0.05 * rc_width + 4, int(0.2 * rc_height) + 1);
+	tmp.Format(L"%d", doc->chi2histogram.hist_max_freq);
+	dc->TextOut(0.05 * rc_width - 5 - (long long)tmp.GetLength() * 8, int(0.2 * rc_height) - 6, tmp);
+
+	double prop = ((max_mark - 0.05) * rc_width) / (doc->chi2histogram.hist_max_value - doc->chi2histogram.hist_min_value
+		+ doc->chi2histogram.hist_min_dif_module / 2); // Scale (values -> pixels)
+	double shift = min(doc->chi2histogram.hist_min_dif_module / 2 * prop, 0.15 * rc_width); // Half of theoretical bar width
+
+	//Min value mark
+	dc->MoveTo(int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width), 0.95 * rc_height - 4);
+	dc->LineTo(int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width), 0.95 * rc_height + 4);
+	tmp.Format(L"%g", doc->chi2histogram.hist_min_value);
+	dc->TextOut(int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width) - 4, int(0.95 * rc_height) + 8, tmp);
+
+	for (int i = 0; i < doc->chi2histogram.get_size(); ++i) {
+		//Drawing bar for theoretical value
+		double bar_center_th = (doc->chi2histogram.get_th_point(i).value - doc->chi2histogram.hist_min_value
+			+ doc->chi2histogram.hist_min_dif_module / 2) * prop; // in pixels
+		int x1 = int(0.05 * rc_width + bar_center_th - shift);
+		int y1 = int((0.95 - doc->chi2histogram.get_th_point(i).freq / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+		int x2 = int(0.05 * rc_width + bar_center_th + shift);
+		int y2 = int(0.95 * rc_height + 1);
+		draw_rectangle(dc, x1, y1, x2, y2, 0);
+
+		//Drawing bar for empirical value
+		double bar_center_emp = (doc->chi2histogram.get_emp_point(i).value - doc->chi2histogram.hist_min_value
+			+ doc->chi2histogram.hist_min_dif_module / 2) * prop; // in pixels
+		x1 = int(0.05 * rc_width + bar_center_emp - shift / 2);
+		y1 = int((0.95 - 1.0 * doc->chi2histogram.get_emp_point(i).freq / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+		x2 = int(0.05 * rc_width + bar_center_emp + shift / 2);
+
+		double tmp1 = doc->chi2histogram.get_emp_point(i).freq;
+		draw_rectangle(dc, x1, y1, x2, y2, 1);
+	}
+
+	bool zero_far_from_max = abs(doc->chi2histogram.hist_max_value * prop) > 4;
+	bool zero_far_from_min = abs(doc->chi2histogram.hist_min_value * prop) > 4;
+	bool zero_after_start = (-doc->chi2histogram.hist_min_value) * prop + 0.05 * rc_width > 4;
+	bool zero_before_end = (-doc->chi2histogram.hist_min_value) * prop < 0.75 * rc_width - 4;
+	//Check if we can place zero value mark
+	if (zero_far_from_max && zero_far_from_min && zero_after_start && zero_before_end) {
+		dc->MoveTo((- doc->chi2histogram.hist_min_value) * prop + 
+			doc->chi2histogram.hist_min_dif_module / 2 * prop + 0.05 * rc_width, 0.95 * rc_height - 4);
+		dc->LineTo((-doc->chi2histogram.hist_min_value) * prop + 
+			doc->chi2histogram.hist_min_dif_module / 2 * prop + 0.05 * rc_width, 0.95 * rc_height + 20);
+		tmp.Format(L"%d", 0);
+		dc->TextOut((-doc->chi2histogram.hist_min_value) * prop + shift + 0.05 * rc_width - 4, 0.95 * rc_height + 20, tmp);
+	}
+
+	//Marks for visibility
+	int max_round_mark = 1;
+	while (max_round_mark * 10 < doc->chi2histogram.hist_max_freq)
+		max_round_mark *= 10;
+	if (doc->chi2histogram.hist_max_freq / max_round_mark < 4)
+		max_round_mark /= 2;
+	for (int i = max_round_mark; i < doc->chi2histogram.hist_max_freq; i += max_round_mark) {
+		int y = int((0.95 - 1.0 * i / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+		if (y > int(0.2 * rc_height) + 10) {
+			dc->MoveTo(0.05 * rc_width - 4, y);
+			dc->LineTo(0.05 * rc_width + 4, y);
+			tmp.Format(L"%d", i);
+			dc->TextOut(0.05 * rc_width - 5 - (long long)tmp.GetLength() * 8, y - 8, tmp);
+		}
+		else
+			break;
+	}
+
 	dc->SelectObject(pOldPen);
 }
 
@@ -189,22 +291,24 @@ void CBPv1View::OnHistogram()
 		doc->d0.set_parameters(d.values, d.abs_freqs, d.box_num + 1, doc->sum_freqs_h0);
 		doc->method_type = d.m_method_type;
 		doc->sample_size = d.m_sample_size;
-		if (doc->s)
-			doc->s->set_parameters(doc->d0);
-		else {
-			switch (doc->method_type) {
-			case 0:
-				doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
-				break;
-			case 1:
-				doc->s = new ChenSample(doc->d0);
-			}
+		if (doc->s) {
+			delete doc->s;
+		}
+		switch (doc->method_type) {
+		case 0:
+			doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
+			break;
+		case 1:
+			doc->s = new ChenSample(doc->d0);
+			break;
 		}
 		doc->s->simulate(doc->sample_size);
 		doc->chi2histogram.SetData(*doc->s, doc->d0);
 
+		double pval = doc->chi2histogram.get_pvalue();
+		double chi = doc->chi2histogram.get_chi2();
+
 		doc->UpdateAllViews(0);
 	}
-	// TODO: добавьте свой код обработчика команд
 }
 

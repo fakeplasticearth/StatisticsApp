@@ -19,21 +19,21 @@ Distribution::Distribution(const Distribution& distr) : size(distr.size), name(d
 	}
 }
 
-Distribution::Distribution(Distribution&& distr) noexcept : values(distr.values), freqs(distr.freqs), size(distr.size), name(distr.name) {
+Distribution::Distribution(Distribution&& distr): values(distr.values), freqs(distr.freqs), size(distr.size), name(distr.name) {
 	distr.size = 0;
 	distr.values = nullptr;
 	distr.freqs = nullptr;
 	distr.name = "";
 }
 
-void Distribution::swap(Distribution& distr) noexcept {
+void Distribution::swap(Distribution& distr) {
 	std::swap(values, distr.values);
 	std::swap(freqs, distr.freqs);
 	std::swap(size, distr.size);
 	std::swap(name, distr.name);
 }
 
-Distribution& Distribution::operator=(Distribution distr) noexcept {
+Distribution& Distribution::operator=(Distribution distr) {
 	this->swap(distr);
 	return *this;
 }
@@ -42,6 +42,9 @@ Distribution::~Distribution() {
 	if (size != 0) {
 		delete[]values;
 		delete[]freqs;
+		values = nullptr;
+		freqs = nullptr;
+		size = 0;
 	}
 }
 
@@ -61,27 +64,19 @@ std::string Distribution::get_name() {
 	return name;
 }
 
-void Distribution::print_i() {
-	std::cout << "Distr size: " << size << '\n';
-	std::cout << "Distr values: \n";
-	for (int i = 0; i < size; ++i) {
-		std::cout << std::setw(4) << values[i] << ' ';
-	}
-	std::cout << "\nDistr freqs: \n";
-	for (int i = 0; i < size; ++i) {
-		std::cout << std::setw(4) << freqs[i] << ' ';
-	}
-}
-
 void Distribution::set_parameters(double* values_, int* abs_freqs_, int size_, int sum_freqs_) {
 	delete[]values;
 	delete[]freqs;
 	values = new double[size_ + 2];
 	freqs = new double[size_ + 2];
 	size = size_;
+	double tmp1;
+	double tmp2;
 	for (int i = 0; i < size; ++i) {
 		values[i] = values_[i];
 		freqs[i] = 1.0 * abs_freqs_[i] / sum_freqs_;
+		tmp2 = freqs[i];
+		tmp1 = values[i];
 	}
 }
 
