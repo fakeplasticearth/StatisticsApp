@@ -46,6 +46,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnHistogram();
+	afx_msg void OnPvalue();
 };
 
 #ifndef _DEBUG  // версия отладки в BPv1View.cpp

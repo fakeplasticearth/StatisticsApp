@@ -192,9 +192,11 @@
     <ClInclude Include="HistogramDlg.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="ParameterDlg.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PROBDIST.H" />
     <ClInclude Include="PropertiesWnd.h" />
+    <ClInclude Include="PvalueDlg.h" />
     <ClInclude Include="R64M.hpp" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -212,6 +214,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="HistogramDlg.cpp" />
+    <ClCompile Include="ParameterDlg.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -221,6 +224,7 @@
     <ClCompile Include="PrimitiveSample.cpp" />
     <ClCompile Include="PROBDIST.CPP" />
     <ClCompile Include="PropertiesWnd.cpp" />
+    <ClCompile Include="PvalueDlg.cpp" />
     <ClCompile Include="R64M.cpp" />
     <ClCompile Include="Sample.cpp" />
     <ClCompile Include="ViewTree.cpp" />

@@ -11,6 +11,7 @@
 #include <vector>
 #include "R64M.hpp"
 #include "PROBDIST.H"
+#include "ParameterDlg.h"
 
 #define NOT_A_NUMBER 0
 #define NOT_AN_INT 1
@@ -20,6 +21,13 @@
 #define INVALID_SAMPLE_SIZE 5
 #define NOT_AN_INT_SAMPLE_SIZE 6
 #define UNSPECIFIED_VALUE -1
+
+#define BOX_HEIGHT 28 // высота edit box
+#define BOX_WIDTH 50 // ширина edit box
+#define BOX_START1X 159 // координата x левого верхнего угла первой линии edit box
+#define BOX_START1Y 30 // координата y левого верхнего угла первой линии edit box
+#define BOX_START2X 110 // координата x левого верхнего угла второй линии edit box
+#define BOX_START2Y 90 // координата y левого верхнего угла второй линии edit box
 
 struct point_emp {
 	int freq;
