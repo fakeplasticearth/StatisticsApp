@@ -169,7 +169,7 @@ void HistogramDlg::OnBnClickedOk()
 	
 	error_found = 0;
 	error_message = L"";
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < 10; ++i)
 		error_type_status[i] = 0;
 	
 	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT2), 0, 0);

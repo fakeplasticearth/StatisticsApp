@@ -1,6 +1,13 @@
 #pragma once
+
 #include "pch.h"
 #include "BPv1Doc.h"
+
+
+#define BOX_START1X 159 // координата x левого верхнего угла первой линии edit box
+#define BOX_START1Y 30 // координата y левого верхнего угла первой линии edit box
+#define BOX_START2X 110 // координата x левого верхнего угла второй линии edit box
+#define BOX_START2Y 90 // координата y левого верхнего угла второй линии edit box
 
 class HistogramDlg : public ParameterDlg
 {

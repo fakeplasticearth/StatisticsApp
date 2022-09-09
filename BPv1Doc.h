@@ -20,14 +20,13 @@
 #define COINCIDING_VALUES 4
 #define INVALID_SAMPLE_SIZE 5
 #define NOT_AN_INT_SAMPLE_SIZE 6
+#define TOO_SMALL_PVALUE_SAMPLE_SIZE 7
+#define TOO_BIG_PVALUE_SAMPLE_SIZE 8
+#define NOT_AN_INT_PVALUE_SAMPLE_SIZE 9
 #define UNSPECIFIED_VALUE -1
 
 #define BOX_HEIGHT 28 // высота edit box
 #define BOX_WIDTH 50 // ширина edit box
-#define BOX_START1X 159 // координата x левого верхнего угла первой линии edit box
-#define BOX_START1Y 30 // координата y левого верхнего угла первой линии edit box
-#define BOX_START2X 110 // координата x левого верхнего угла второй линии edit box
-#define BOX_START2Y 90 // координата y левого верхнего угла второй линии edit box
 
 struct point_emp {
 	int freq;
@@ -148,6 +147,7 @@ public:
 	Distribution d0, d1;
 	Chi2Histogram chi2histogram;
 	int sum_freqs_h0, sum_freqs_h1;
+	int pvalue_sample_size;
 	int method_type;
 	int sample_size;
 	int draw_mode = 0;

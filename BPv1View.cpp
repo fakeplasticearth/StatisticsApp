@@ -13,6 +13,7 @@
 #include "BPv1Doc.h"
 #include "BPv1View.h"
 #include "HistogramDlg.h"
+#include "PvalueDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -318,6 +319,9 @@ void CBPv1View::OnHistogram()
 void CBPv1View::OnPvalue()
 {
 	CBPv1Doc* doc = GetDocument();
-	//PvalueDlg d;
-	//d.fill_values(doc);
+	PvalueDlg d;
+	d.fill_values(doc);
+	if (d.DoModal() == IDOK) {
+
+	}
 }

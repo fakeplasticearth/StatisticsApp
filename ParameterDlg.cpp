@@ -64,7 +64,7 @@ int ParameterDlg::check_string(CString str, int mode) {
 }
 
 int ParameterDlg::GetErrorCode(CEdit* edit_box, int mode) {
-	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box
+	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box, 3 for pvalue sample size box
 	// Output: code of error
 
 	CString buff;
@@ -75,6 +75,13 @@ int ParameterDlg::GetErrorCode(CEdit* edit_box, int mode) {
 		int code = check_string(buff, 0);
 		if (code == NOT_AN_INT)
 			return NOT_AN_INT_SAMPLE_SIZE;
+		else
+			return code;
+	}
+	else if (mode == 3) {
+		int code = check_string(buff, 0);
+		if (code == NOT_AN_INT)
+			return NOT_AN_INT_PVALUE_SAMPLE_SIZE;
 		else
 			return code;
 	}
@@ -98,6 +105,12 @@ CString ParameterDlg::GetErrorMessage(int error_code) {
 		return L"Sample size must be decimal number.\n";
 	case INVALID_SAMPLE_SIZE:
 		return L"Sample size must be greater than 0.\n";
+	case NOT_AN_INT_PVALUE_SAMPLE_SIZE:
+		return L"Pvalue sample size must be decimal number.\n";
+	case TOO_SMALL_PVALUE_SAMPLE_SIZE:
+		return L"Pvalue sample size must be greater than 0.\n";
+	case TOO_BIG_PVALUE_SAMPLE_SIZE:
+		return L"Pvalue sample size must not be greater than 10000.\n";
 	default:
 		return L"";
 	}

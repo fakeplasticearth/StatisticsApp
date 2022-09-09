@@ -28,7 +28,7 @@ END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1Doc
 
-CBPv1Doc::CBPv1Doc() noexcept: sum_freqs_h0(100), sum_freqs_h1(100), method_type(0), sample_size(1000)
+CBPv1Doc::CBPv1Doc() noexcept: sum_freqs_h0(100), sum_freqs_h1(100), method_type(0), sample_size(1000), pvalue_sample_size(500)
 {
 	// TODO: добавьте код для одноразового вызова конструктора
 	rninit(442);
@@ -37,7 +37,7 @@ CBPv1Doc::CBPv1Doc() noexcept: sum_freqs_h0(100), sum_freqs_h1(100), method_type
 	d0.set_parameters(tmp_values_h0, tmp_freqs_h0, 5, sum_freqs_h0);
 	int tmp_freqs_h1[5] = { 10, 30, 40, 5, 15 };
 	double tmp_values_h1[5] = { 3.0, 3.5, 4.0, 4.5, 5.0 };
-	d0.set_parameters(tmp_values_h1, tmp_freqs_h1, 5, sum_freqs_h1);
+	d1.set_parameters(tmp_values_h1, tmp_freqs_h1, 5, sum_freqs_h1);
 
 	NONCLIENTMETRICS metrics = {};
 	metrics.cbSize = sizeof(metrics);
