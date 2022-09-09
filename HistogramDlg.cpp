@@ -6,23 +6,13 @@
 #include "HistogramDlg.h"
 #include "afxdialogex.h"
 
-#define BOX_HEIGHT 28 // высота edit box
-#define BOX_WIDTH 50 // ширина edit box
-#define BOX_START1X 159 // координата x левого верхнего угла первой линии edit box
-#define BOX_START1Y 30 // координата y левого верхнего угла первой линии edit box
-#define BOX_START2X 110 // координата x левого верхнего угла второй линии edit box
-#define BOX_START2Y 90 // координата y левого верхнего угла второй линии edit box
-
 
 // Диалоговое окно HistogramDlg
 
 IMPLEMENT_DYNAMIC(HistogramDlg, CDialog)
 
 HistogramDlg::HistogramDlg(CWnd* pParent /*=nullptr*/)
-	: CDialog(IDD_DIALOG1, pParent)
-	, m_method_type(0)
-	, m_sample_size(0)
-	, error_found(0)
+	: ParameterDlg(IDD_DIALOG1, pParent)
 {
 	for (int i = 0; i < 12; ++i) {
 		values[i] = 0.;
@@ -129,71 +119,6 @@ void HistogramDlg::OnBnClickedRadio2()
 	m_method_type = 1;
 }
 
-
-int HistogramDlg::check_string(CString str, int mode) {
-	//Input: str - text string from edit box, mode - 0 for decimal input rule, 1 for floating point number rule
-	int dot_num = 0;
-	if (str.GetLength() == 0)
-		return EMPTY_BOX;
-
-	for (int i = 0; i < str.GetLength(); ++i) {
-		if ((str[i] == '.') && dot_num)
-			return NOT_A_NUMBER;
-		else if (str[i] == '.')
-			++dot_num;
-		else if (str[i] == '-') {
-			if (i)
-				return NOT_A_NUMBER;
-		}
-		else if (!isdigit(str[i]))
-			return NOT_A_NUMBER;
-	}
-	if ((mode == 0) && (dot_num > 0))
-		return NOT_AN_INT;
-
-	return -1;
-}
-
-int HistogramDlg::GetErrorCode(CEdit* edit_box, int mode) {
-	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box
-	// Output: code of error
-
-	CString buff;
-	int len = edit_box->LineLength();
-	edit_box->GetLine(0, buff.GetBuffer(len), len);
-	buff.ReleaseBuffer(len);
-	if (mode == 2) {
-		int code = check_string(buff, 0);
-		if (code == NOT_AN_INT)
-			return NOT_AN_INT_SAMPLE_SIZE;
-		else
-			return code;
-	}
-	else
-		return check_string(buff, mode);
-}
-
-CString GetErrorMessage(int error_code) {
-	switch (error_code) {
-	case NOT_A_NUMBER:
-		return L"Please enter only numbers.\n";
-	case NOT_AN_INT:
-		return L"Absolute frequencies must be decimal numbers.\n";
-	case EMPTY_BOX:
-		return L"Please complete all created boxes.\n";
-	case INVALID_FREQ:
-		return L"Absolute frequencies must be greater than 0.\n";
-	case COINCIDING_VALUES:
-		return L"Values should not coincide.\n";
-	case NOT_AN_INT_SAMPLE_SIZE:
-		return L"Sample size must be decimal number.\n";
-	case INVALID_SAMPLE_SIZE:
-		return L"Sample size must be greater than 0.\n";
-	default:
-		return L"";
-	}
-}
-
 void HistogramDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
 	/*Input: edit_box_id - id of edit box, 
 	* mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box 
@@ -244,7 +169,7 @@ void HistogramDlg::OnBnClickedOk()
 	
 	error_found = 0;
 	error_message = L"";
-	for (int i = 0; i < 7; ++i)
+	for (int i = 0; i < 10; ++i)
 		error_type_status[i] = 0;
 	
 	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT2), 0, 0);

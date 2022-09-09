@@ -13,6 +13,7 @@
 #include "BPv1Doc.h"
 #include "BPv1View.h"
 #include "HistogramDlg.h"
+#include "PvalueDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,6 +32,7 @@ BEGIN_MESSAGE_MAP(CBPv1View, CView)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_COMMAND(ID_HISTOGRAM, &CBPv1View::OnHistogram)
+	ON_COMMAND(ID_PVALUE, &CBPv1View::OnPvalue)
 END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1View
@@ -312,3 +314,14 @@ void CBPv1View::OnHistogram()
 	}
 }
 
+
+
+void CBPv1View::OnPvalue()
+{
+	CBPv1Doc* doc = GetDocument();
+	PvalueDlg d;
+	d.fill_values(doc);
+	if (d.DoModal() == IDOK) {
+
+	}
+}

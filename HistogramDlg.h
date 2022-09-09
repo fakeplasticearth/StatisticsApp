@@ -1,8 +1,15 @@
 #pragma once
+
 #include "pch.h"
 #include "BPv1Doc.h"
 
-class HistogramDlg : public CDialog
+
+#define BOX_START1X 159 // координата x левого верхнего угла первой линии edit box
+#define BOX_START1Y 30 // координата y левого верхнего угла первой линии edit box
+#define BOX_START2X 110 // координата x левого верхнего угла второй линии edit box
+#define BOX_START2Y 90 // координата y левого верхнего угла второй линии edit box
+
+class HistogramDlg : public ParameterDlg
 {
 	DECLARE_DYNAMIC(HistogramDlg)
 
@@ -23,24 +30,16 @@ public:
 	double values[14];
 	CButton m_add_box;
 	unsigned int box_num = 0; // количество созданных edit box
-	bool init_mode = 1;
-	CFont* box_font;
 	std::vector<CEdit*> edit_freq_vector = {};
 	std::vector<CEdit*> edit_val_vector = {};
-	int check_string(CString str, int mode);
 	afx_msg void OnBnClickedButton1();
 	CButton m_delete_box;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedRadio1();
 	afx_msg void OnBnClickedRadio2();
 	INT m_method_type;
-	bool error_type_status[9];
 	afx_msg void OnBnClickedOk();
-	int GetErrorCode(CEdit* edit_box, int mode);
-	bool error_found;
 	void ProcessBoxData(CEdit* edit_box, int mode, int index);
-	CString error_message;
 	void fill_values(CBPv1Doc* doc);
 	BOOL OnInitDialog();
-	int m_sample_size;
 };
