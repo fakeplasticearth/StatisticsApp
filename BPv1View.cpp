@@ -71,6 +71,8 @@ void CBPv1View::OnDraw(CDC* pDC)
 		break;
 	case 1:
 		draw_histogram(pDC);
+	case 2:
+		draw_pvalue_plot(pDC);
 	default:
 		break;
 	}
@@ -314,6 +316,68 @@ void CBPv1View::OnHistogram()
 	}
 }
 
+void CBPv1View::draw_pvalue_plot(CDC* dc) {
+	CBPv1Doc* doc = GetDocument();
+	CPen penBlack;
+	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	CPen* pOldPen = dc->SelectObject(&penBlack);
+
+	CRect rc;
+	GetClientRect(&rc);
+	int rc_width = rc.Width(), rc_height = rc.Height();
+
+	//X axis
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.95 * rc_width, 0.95 * rc_height);
+
+	//Y axis
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.05 * rc_width, 0.05 * rc_height);
+
+	//"1" mark, X axis
+	dc->MoveTo(0.85 * rc_width, 0.95 * rc_height - 4);
+	dc->LineTo(0.85 * rc_width, 0.95 * rc_height + 4);
+	dc->TextOut(0.85 * rc_width - 2, 0.95 * rc_height + 6, L"1");
+
+	int grid_step = 5;
+
+	//X grid
+	dc->MoveTo(0.85 * rc_width, 0.15 * rc_height);
+	double y_tmp = 0.;
+	while (0.95 * rc_height - y_tmp - 0.15 * rc_height> 10e-10) {
+		dc->LineTo(0.85 * rc_width, 0.15 * rc_height + y_tmp + grid_step);
+		y_tmp += grid_step * 2;
+		dc->MoveTo(0.85 * rc_width, 0.15 * rc_height + y_tmp);
+	}
+
+	//Y grid
+	dc->MoveTo(0.05 * rc_width, 0.15 * rc_height);
+	double x_tmp = 0.;
+	while (0.85 * rc_width - x_tmp - 0.05 * rc_width > 10e-10) {
+		dc->LineTo(0.05 * rc_width + x_tmp + grid_step, 0.15 * rc_height);
+		x_tmp += grid_step * 2;
+		dc->MoveTo(0.05 * rc_width + x_tmp, 0.15 * rc_height);
+	}
+
+	//"1" mark, Y axis
+	dc->MoveTo(0.05 * rc_width - 4, 0.15 * rc_height);
+	dc->LineTo(0.05 * rc_width + 4, 0.15 * rc_height);
+	dc->TextOut(0.05 * rc_width - 16, 0.15 * rc_height - 6, L"1");
+
+	//"0" mark
+	dc->TextOut(0.05 * rc_width - 16, 0.95 * rc_height + 6, L"0");
+
+	CPen penGreen;
+	penGreen.CreatePen(PS_SOLID, 3, RGB(0, 200, 0));
+	dc->SelectObject(penGreen);
+	
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	for (int i = 0; i < ALPHA_NUM; ++i) {
+		dc->LineTo(0.05 * rc_width + (i + 1) * 0.8 * rc_width / ALPHA_NUM, 0.95 * rc_height - doc->pvalues_frac[i] * 0.8 * rc_height);
+	}
+
+	dc->SelectObject(pOldPen);
+}
 
 
 void CBPv1View::OnPvalue()
@@ -322,6 +386,66 @@ void CBPv1View::OnPvalue()
 	PvalueDlg d;
 	d.fill_values(doc);
 	if (d.DoModal() == IDOK) {
+		doc->draw_mode = 2;
 
+		doc->sum_freqs_h0 = 0;
+		for (int i = 0; i < d.h0_box_num + 1; ++i) {
+			doc->sum_freqs_h0 += d.h0_abs_freqs[i];
+		}
+
+		doc->sum_freqs_h1 = 0;
+		for (int i = 0; i < d.h1_box_num + 1; ++i) {
+			doc->sum_freqs_h1 += d.h1_abs_freqs[i];
+		}
+
+		doc->d0.set_parameters(d.h0_values, d.h0_abs_freqs, d.h0_box_num + 1, doc->sum_freqs_h0);
+		doc->d1.set_parameters(d.h1_values, d.h1_abs_freqs, d.h1_box_num + 1, doc->sum_freqs_h1);
+		doc->method_type = d.m_method_type;
+		doc->sample_size = d.m_sample_size;
+		doc->pvalue_sample_size = d.m_pvalue_sample_size;
+
+		if (doc->s) {
+			delete doc->s;
+		}
+		switch (doc->method_type) {
+		case 0:
+			doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
+			break;
+		case 1:
+			doc->s = new ChenSample(doc->d0);
+			break;
+		}
+		doc->pvalues_arr = new double[doc->pvalue_sample_size];
+		doc->pvalues_frac = new double[ALPHA_NUM];
+
+		for (int i = 0; i < doc->pvalue_sample_size; ++i) {
+			doc->s->simulate(doc->sample_size);
+			doc->chi2histogram.SetData(*doc->s, doc->d1);
+			doc->pvalues_arr[i] = doc->chi2histogram.get_pvalue();
+		}
+
+		std::sort(doc->pvalues_arr, doc->pvalues_arr + doc->pvalue_sample_size, [](const double& lval, const double& rval) {
+			return lval < rval;
+			});
+
+		double alpha_step = 1. / ALPHA_NUM;
+		int index = 0;
+		for (int i = 0; i < ALPHA_NUM; ++i)
+			doc->pvalues_frac[i] = 0;
+
+
+		for (int i = 0; i < doc->pvalue_sample_size; ++i) {
+			if (alpha_step - doc->pvalues_arr[i] > 10e-10) {
+				doc->pvalues_frac[index] += 1. / doc->pvalue_sample_size;
+			}
+			else {
+				--i;
+				++index;
+				doc->pvalues_frac[index] = doc->pvalues_frac[index - 1];
+				alpha_step += 1. / ALPHA_NUM;
+			}
+		}
+
+		doc->UpdateAllViews(0);
 	}
 }

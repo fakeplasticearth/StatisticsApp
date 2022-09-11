@@ -28,6 +28,9 @@
 #define BOX_HEIGHT 28 // высота edit box
 #define BOX_WIDTH 50 // ширина edit box
 
+#define ALPHA_NUM 100
+#define eps 10e-10;
+
 struct point_emp {
 	int freq;
 	double value;
@@ -152,6 +155,8 @@ public:
 	int sample_size;
 	int draw_mode = 0;
 	CFont* box_font;
+	double* pvalues_arr = nullptr;
+	double* pvalues_frac = nullptr;
 // Операции
 public:
 
