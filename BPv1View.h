@@ -19,6 +19,7 @@ public:
 public:
 	void draw_rectangle(CDC* dc, int x1, int y1, int x2, int y2, int mode);
 	void draw_histogram(CDC* dc);
+	void draw_pvalue_plot(CDC* dc);
 // Переопределение
 public:
 	virtual void OnDraw(CDC* pDC);  // переопределено для отрисовки этого представления
