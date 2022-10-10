@@ -61,4 +61,7 @@ public:
 	afx_msg void OnBnClickedButton5();
 	afx_msg void OnBnClickedButton6();
 	int m_pvalue_sample_size;
+	int m_parameter;
+	afx_msg void OnBnClickedRadio3();
+	afx_msg void OnBnClickedRadio4();
 };

@@ -125,6 +125,7 @@ void Chi2Histogram::merge_freqs() {
 		++df;
 	}
 	--df;
+
 }
 
 void Chi2Histogram::calc_chi2() {

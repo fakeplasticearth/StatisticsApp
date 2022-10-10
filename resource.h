@@ -104,15 +104,21 @@
 #define IDC_EDIT9                       1016
 #define IDC_RADIO3                      1017
 #define IDC_RADIO4                      1018
+#define IDC_M_FRAME                     1019
+#define IDC_M_TEXT                      1020
+#define IDC_M_EDIT                      1021
 #define IDC_EDIT4                       1022
 #define IDC_EDIT5                       1023
 #define IDC_EDIT6                       1024
 #define IDC_EDIT7                       1025
 #define IDC_STATIC2                     1026
+#define IDC_M_TEXT2                     1026
 #define IDC_STATIC5                     1027
 #define IDC_STATIC7                     1028
 #define IDC_STATIC6                     1029
 #define IDC_STATIC8                     1030
+#define IDC_M_FRAME2                    1031
+#define IDC_M_EDIT2                     1032
 #define ID_HISTOGRAM                    32771
 #define ID_PVALUE                       32773
 
@@ -122,7 +128,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
