@@ -13,6 +13,7 @@ IMPLEMENT_DYNAMIC(HistogramDlg, CDialog)
 
 HistogramDlg::HistogramDlg(CWnd* pParent /*=nullptr*/)
 	: ParameterDlg(IDD_DIALOG1, pParent)
+	, m_parameter(0)
 {
 	for (int i = 0; i < 12; ++i) {
 		values[i] = 0.;
@@ -32,6 +33,8 @@ void HistogramDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_RADIO1, m_method_type);
 	DDX_Text(pDX, IDC_EDIT3, m_sample_size);
 	DDV_MinMaxInt(pDX, m_sample_size, 1, 999999);
+	DDX_Text(pDX, IDC_M_EDIT, m_parameter);
+	DDV_MinMaxInt(pDX, m_parameter, 1, 20);
 }
 
 
@@ -112,11 +115,17 @@ void HistogramDlg::OnBnClickedButton2()
 void HistogramDlg::OnBnClickedRadio1()
 {
 	m_method_type = 0;
+	GetDlgItem(IDC_M_EDIT)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_M_TEXT)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_M_FRAME)->ShowWindow(SW_HIDE);
 }
 
 void HistogramDlg::OnBnClickedRadio2()
 {
 	m_method_type = 1;
+	GetDlgItem(IDC_M_EDIT)->ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_M_TEXT)->ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_M_FRAME)->ShowWindow(SW_SHOW);
 }
 
 void HistogramDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
@@ -203,6 +212,7 @@ void HistogramDlg::fill_values(CBPv1Doc* doc) {
 	m_method_type = doc->method_type;
 	box_font = doc->box_font;
 	m_sample_size = doc->sample_size;
+	m_parameter = doc->chen_parameter;
 	if ((int)box_num > -1) {
 		for (int i = 0; i < box_num + 1; ++i) {
 			values[i] = doc->d0.get_ith_value(i);
@@ -215,6 +225,13 @@ void HistogramDlg::fill_values(CBPv1Doc* doc) {
 BOOL HistogramDlg::OnInitDialog() {
 	CString tmp;
 	GetDlgItem(IDC_EDIT1)->SetWindowText(tmp);
+	if (m_method_type == 0) {
+		GetDlgItem(IDC_M_EDIT)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_M_TEXT)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_M_FRAME)->ShowWindow(SW_HIDE);
+	}
+	GetDlgItem(IDC_M_EDIT)->SetFont(box_font, 1);
+
 	if (box_num == -1) {
 		box_num = 0;
 	}

@@ -15,6 +15,7 @@ PvalueDlg::PvalueDlg(CWnd* pParent /*=nullptr*/)
 	: ParameterDlg(IDD_DIALOG2, pParent)
 	, m_method_type(0)
 	, m_pvalue_sample_size(0)
+	, m_parameter(0)
 {
 
 }
@@ -37,6 +38,8 @@ void PvalueDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_sample_size, 1, 999999);
 	DDX_Text(pDX, IDC_EDIT8, m_pvalue_sample_size);
 	DDV_MinMaxInt(pDX, m_pvalue_sample_size, 1, 999999);
+	DDX_Text(pDX, IDC_M_EDIT2, m_parameter);
+	DDV_MinMaxInt(pDX, m_parameter, 1, 20);
 }
 
 
@@ -46,6 +49,8 @@ BEGIN_MESSAGE_MAP(PvalueDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON5, &PvalueDlg::OnBnClickedButton5)
 	ON_BN_CLICKED(IDC_BUTTON6, &PvalueDlg::OnBnClickedButton6)
 	ON_BN_CLICKED(IDOK, &PvalueDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_RADIO3, &PvalueDlg::OnBnClickedRadio3)
+	ON_BN_CLICKED(IDC_RADIO4, &PvalueDlg::OnBnClickedRadio4)
 END_MESSAGE_MAP()
 
 
@@ -58,6 +63,7 @@ void PvalueDlg::fill_values(CBPv1Doc* doc) {
 	box_font = doc->box_font;
 	m_sample_size = doc->sample_size;
 	m_pvalue_sample_size = doc->pvalue_sample_size;
+	m_parameter = doc->chen_parameter;
 	if ((int)h0_box_num > -1) {
 		for (int i = 0; i < h0_box_num + 1; ++i) {
 			h0_values[i] = doc->d0.get_ith_value(i);
@@ -206,6 +212,13 @@ BOOL PvalueDlg::OnInitDialog() {
 	CEdit* pvalue_sample_size_box = (CEdit*)GetDlgItem(IDC_EDIT8);
 	pvalue_sample_size_box->SetFont(box_font, 1);
 	pvalue_sample_size_box->SetLimitText(6);
+
+	if (m_method_type == 0) {
+		GetDlgItem(IDC_M_EDIT2)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_M_TEXT2)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_M_FRAME2)->ShowWindow(SW_HIDE);
+	}
+	GetDlgItem(IDC_M_EDIT2)->SetFont(box_font, 1);
 
 	if (h0_box_num == -1) {
 		h0_box_num = 0;
@@ -390,4 +403,24 @@ void PvalueDlg::OnBnClickedOk()
 		else
 			AfxMessageBox(error_message + GetErrorMessage(COINCIDING_VALUES));
 	}
+}
+
+
+void PvalueDlg::OnBnClickedRadio3()
+{
+	m_method_type = 0;
+	GetDlgItem(IDC_M_EDIT2)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_M_TEXT2)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_M_FRAME2)->ShowWindow(SW_HIDE);
+}
+
+
+
+
+void PvalueDlg::OnBnClickedRadio4()
+{
+	m_method_type = 1;
+	GetDlgItem(IDC_M_EDIT2)->ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_M_TEXT2)->ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_M_FRAME2)->ShowWindow(SW_SHOW);
 }

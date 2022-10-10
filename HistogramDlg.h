@@ -42,4 +42,5 @@ public:
 	void ProcessBoxData(CEdit* edit_box, int mode, int index);
 	void fill_values(CBPv1Doc* doc);
 	BOOL OnInitDialog();
+	int m_parameter;
 };
