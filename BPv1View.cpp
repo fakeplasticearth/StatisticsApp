@@ -14,6 +14,7 @@
 #include "BPv1View.h"
 #include "HistogramDlg.h"
 #include "PvalueDlg.h"
+#include "SlevelDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -33,6 +34,7 @@ BEGIN_MESSAGE_MAP(CBPv1View, CView)
 	ON_WM_RBUTTONUP()
 	ON_COMMAND(ID_HISTOGRAM, &CBPv1View::OnHistogram)
 	ON_COMMAND(ID_PVALUE, &CBPv1View::OnPvalue)
+	ON_COMMAND(ID_SIGNIFICANCELEVEL, &CBPv1View::OnSignificancelevel)
 END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1View
@@ -74,6 +76,9 @@ void CBPv1View::OnDraw(CDC* pDC)
 		break;
 	case 2:
 		draw_pvalue_plot(pDC);
+		break;
+	case 3:
+		draw_slevel_plot(pDC);
 		break;
 	default:
 		break;
@@ -473,4 +478,161 @@ void CBPv1View::OnPvalue()
 
 		doc->UpdateAllViews(0);
 	}
+}
+
+
+void CBPv1View::OnSignificancelevel()
+{
+	CBPv1Doc* doc = GetDocument();
+	SlevelDlg d;
+	d.fill_values(doc);
+
+	if (d.DoModal() == IDOK) {
+		doc->draw_mode = 3;
+		doc->sum_freqs_h0 = 0;
+		doc->chen_parameter = d.m_parameter;
+		doc->max_sample_size = d.m_max_sample_size;
+		doc->alpha = d.m_alpha;
+		doc->pvalue_sample_size = d.m_pvalue_sample_size;
+		for (int i = 0; i < d.box_num + 1; ++i) {
+			doc->sum_freqs_h0 += d.abs_freqs[i];
+		}
+
+		doc->d0.set_parameters(d.values, d.abs_freqs, d.box_num + 1, doc->sum_freqs_h0);
+
+		doc->method_type = d.m_method_type;
+		doc->sample_size = d.m_sample_size;
+		if (doc->s) {
+			delete doc->s;
+		}
+		switch (doc->method_type) {
+		case 0:
+			doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
+			break;
+		case 1:
+			doc->s = new ChenSample(doc->d0, doc->chen_parameter);
+			break;
+		}
+		int diff = doc->max_sample_size - doc->sum_freqs_h0;
+		if (diff + 1 >= 10) {
+			doc->slevel_arr_size = 10;
+			while ((doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size >= 1) {
+				doc->slevel_arr_size *= 10;
+			}
+			doc->slevel_arr_size /= 10;
+		}
+		else
+			doc->slevel_arr_size = diff + 1;
+		doc->slevel_arr = new double[doc->slevel_arr_size + 2];
+
+		double step = (double)(doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size;
+
+		for (int i = 0; i < doc->slevel_arr_size + 1; ++i) {
+			int curr_n = int(i * step) + doc->sum_freqs_h0;
+
+			double frac = 0.;
+			for (int j = 0; j < doc->pvalue_sample_size; ++j) {
+				doc->s->simulate(curr_n);
+				doc->chi2histogram.SetData(*doc->s, doc->d0);
+				double pval = doc->chi2histogram.get_pvalue();
+				if (doc->alpha - pval > 1e-8)
+					frac += 1. / doc->pvalue_sample_size;
+			}
+			doc->slevel_arr[i] = frac;
+
+		}
+
+		doc->UpdateAllViews(0);
+	}
+}
+
+void CBPv1View::draw_slevel_plot(CDC* dc) {
+	CBPv1Doc* doc = GetDocument();
+	CPen penBlack;
+	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
+	CPen* pOldPen = dc->SelectObject(&penBlack);
+
+	CRect rc;
+	GetClientRect(&rc);
+	int rc_width = rc.Width(), rc_height = rc.Height();
+
+	//X axis
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.95 * rc_width, 0.95 * rc_height);
+
+	//Y axis
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.05 * rc_width, 0.05 * rc_height);
+
+	//max sample size mark, X axis
+	CString tmp;
+	tmp.Format(L"%d", doc->max_sample_size);
+	dc->MoveTo(0.85 * rc_width, 0.95 * rc_height - 4);
+	dc->LineTo(0.85 * rc_width, 0.95 * rc_height + 4);
+	dc->TextOut(0.85 * rc_width - 2, 0.95 * rc_height + 6, tmp);
+
+	int grid_step = 5;
+
+	//X grid
+	dc->MoveTo(0.85 * rc_width, 0.15 * rc_height);
+	double y_tmp = 0.;
+	while (0.95 * rc_height - y_tmp - 0.15 * rc_height > 10e-10) {
+		dc->LineTo(0.85 * rc_width, 0.15 * rc_height + y_tmp + grid_step);
+		y_tmp += grid_step * 2;
+		dc->MoveTo(0.85 * rc_width, 0.15 * rc_height + y_tmp);
+	}
+
+	//Y grid
+	dc->MoveTo(0.05 * rc_width, 0.15 * rc_height);
+	double x_tmp = 0.;
+	while (0.85 * rc_width - x_tmp - 0.05 * rc_width > 10e-10) {
+		dc->LineTo(0.05 * rc_width + x_tmp + grid_step, 0.15 * rc_height);
+		x_tmp += grid_step * 2;
+		dc->MoveTo(0.05 * rc_width + x_tmp, 0.15 * rc_height);
+	}
+
+	//"1" mark, Y axis
+	dc->MoveTo(0.05 * rc_width - 4, 0.15 * rc_height);
+	dc->LineTo(0.05 * rc_width + 4, 0.15 * rc_height);
+	dc->TextOut(0.05 * rc_width - 16, 0.15 * rc_height - 6, L"1");
+
+	//Corner line
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height);
+	dc->LineTo(0.05 * rc_width - 10, 0.95 * rc_height + 10);
+
+	//Min sample size X axis mark
+	tmp.Format(L"%d", doc->sum_freqs_h0);
+	dc->TextOut(0.05 * rc_width + 2, 0.95 * rc_height + 6, tmp);
+
+	//"0" mark
+	dc->TextOut(0.05 * rc_width - 25, 0.95 * rc_height - 10, L"0");
+
+	CPen penRed;
+	penRed.CreatePen(PS_SOLID, 3, RGB(200, 0, 0));
+	dc->SelectObject(penRed);
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height - doc->alpha * 0.8 * rc_height);
+	dc->LineTo(0.9 * rc_width, 0.95 * rc_height - doc->alpha * 0.8 * rc_height);
+
+	CPen penGreen;
+	penGreen.CreatePen(PS_SOLID, 3, RGB(0, 200, 0));
+	dc->SelectObject(penGreen);
+
+	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height - doc->slevel_arr[0] * 0.8 * rc_height);
+
+	if (doc->max_sample_size == doc->sum_freqs_h0) {
+		dc->LineTo(0.8 * rc_width, 0.95 * rc_height - doc->slevel_arr[0] * 0.8 * rc_height);
+	}
+	else {
+		double step = double(doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size;
+		for (int i = 0; i < doc->slevel_arr_size; ++i) {
+			double x = 0.05 * rc_width + int((i + 1) * step) * (
+				0.8 * rc_width) / (doc->max_sample_size - doc->sum_freqs_h0 + 1);
+			dc->LineTo(x, 0.95 * rc_height - doc->slevel_arr[i + 1] * 0.8 * rc_height);
+		}
+	}
+
+	dc->TextOut(0.85 * rc_width + 4, 0.95 * rc_height - doc->alpha * 0.8 * rc_height - 40, L"Significance");
+	dc->TextOut(0.85 * rc_width + 4, 0.95 * rc_height - doc->alpha * 0.8 * rc_height - 20, L"level");
+
+	dc->SelectObject(pOldPen);
 }

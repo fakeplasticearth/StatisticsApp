@@ -412,6 +412,6 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 void CMainFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	// TODO: добавьте свой код обработчика сообщений или вызов стандартного
-	lpMMI->ptMinTrackSize = CPoint(600, 600);
+	lpMMI->ptMinTrackSize = CPoint(800, 800);
 	CFrameWndEx::OnGetMinMaxInfo(lpMMI);
 }

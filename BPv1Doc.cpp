@@ -28,7 +28,8 @@ END_MESSAGE_MAP()
 
 // Создание или уничтожение CBPv1Doc
 
-CBPv1Doc::CBPv1Doc() noexcept: sum_freqs_h0(100), sum_freqs_h1(100), method_type(0), sample_size(1000), pvalue_sample_size(500), chen_parameter(5)
+CBPv1Doc::CBPv1Doc() noexcept: sum_freqs_h0(100), sum_freqs_h1(100), method_type(0), sample_size(1000), pvalue_sample_size(500), chen_parameter(5),
+max_sample_size(200), alpha(0.05)
 {
 	// TODO: добавьте код для одноразового вызова конструктора
 	rninit(442);
