@@ -23,6 +23,11 @@
 #define TOO_SMALL_PVALUE_SAMPLE_SIZE 7
 #define TOO_BIG_PVALUE_SAMPLE_SIZE 8
 #define NOT_AN_INT_PVALUE_SAMPLE_SIZE 9
+#define TOO_SMALL_MAX_SAMPLE_SIZE 10
+#define NOT_AN_INT_MAX_SAMPLE_SIZE 11
+#define SMALLER_MAX_SAMPLE_SIZE 12
+#define SMALL_ALPHA 13
+#define BIG_ALPHA 14
 #define UNSPECIFIED_VALUE -1
 
 #define BOX_HEIGHT 28 // высота edit box
@@ -163,6 +168,10 @@ public:
 	CFont* box_font;
 	double* pvalues_arr = nullptr;
 	double* pvalues_frac = nullptr;
+	double* slevel_arr = nullptr;
+	int slevel_arr_size = 0;
+	int max_sample_size;
+	double alpha;
 // Операции
 public:
 

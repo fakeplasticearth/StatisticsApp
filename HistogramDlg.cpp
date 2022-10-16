@@ -175,7 +175,6 @@ void HistogramDlg::ProcessBoxData(CEdit* edit_box, int mode, int index) {
 
 void HistogramDlg::OnBnClickedOk()
 {
-	
 	error_found = 0;
 	error_message = L"";
 	for (int i = 0; i < 10; ++i)

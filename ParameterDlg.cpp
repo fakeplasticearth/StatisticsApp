@@ -64,7 +64,8 @@ int ParameterDlg::check_string(CString str, int mode) {
 }
 
 int ParameterDlg::GetErrorCode(CEdit* edit_box, int mode) {
-	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box, 3 for pvalue sample size box
+	// Input: id of edit box, mode - 0 for absolute frequency box, 1 for value box, 2 for sample size box, 
+	//		  3 for pvalue sample size box, 4 for max sample size, 5 for significance level
 	// Output: code of error
 
 	CString buff;
@@ -85,8 +86,18 @@ int ParameterDlg::GetErrorCode(CEdit* edit_box, int mode) {
 		else
 			return code;
 	}
-	else
+	else if (mode == 4) {
+		int code = check_string(buff, 0);
+		if (code == NOT_AN_INT)
+			return NOT_AN_INT_MAX_SAMPLE_SIZE;
+		else
+			return code;
+	}
+	else if (mode == 1 || mode == 5){
+		mode = 1;
 		return check_string(buff, mode);
+	}
+	else return check_string(buff, mode);
 }
 
 CString ParameterDlg::GetErrorMessage(int error_code) {
@@ -111,6 +122,14 @@ CString ParameterDlg::GetErrorMessage(int error_code) {
 		return L"Pvalue sample size must be greater than 0.\n";
 	case TOO_BIG_PVALUE_SAMPLE_SIZE:
 		return L"Pvalue sample size must not be greater than 10000.\n";
+	case TOO_SMALL_MAX_SAMPLE_SIZE:
+		return L"Max sample size must be greater than 0.\n";
+	case SMALLER_MAX_SAMPLE_SIZE:
+		return L"Max sample size must be equal or greater than sum of frequencies.\n";
+	case SMALL_ALPHA:
+		return L"Significance level must be greater than 0.\n";
+	case BIG_ALPHA:
+		return L"Significance level must be smaller than 1.\n";
 	default:
 		return L"";
 	}

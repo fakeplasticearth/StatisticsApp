@@ -86,6 +86,7 @@
 #define IDD_DIALOG1                     310
 #define IDD_DIALOG2                     312
 #define IDD_DIALOG3                     314
+#define IDD_DIALOG4                     316
 #define IDC_BUTTON1                     1001
 #define IDC_BUTTON2                     1002
 #define IDC_EDIT1                       1003
@@ -119,16 +120,31 @@
 #define IDC_STATIC8                     1030
 #define IDC_M_FRAME2                    1031
 #define IDC_M_EDIT2                     1032
+#define IDC_STATIC9                     1033
+#define IDC_STATIC10                    1034
+#define IDC_EDIT10                      1035
+#define IDC_EDIT11                      1036
+#define IDC_EDIT12                      1037
+#define IDC_M_EDIT3                     1038
+#define IDC_RADIO5                      1039
+#define IDC_RADIO6                      1040
+#define IDC_BUTTON7                     1041
+#define IDC_BUTTON8                     1042
+#define IDC_M_FRAME3                    1043
+#define IDC_M_TEXT3                     1044
+#define IDC_EDIT13                      1045
+#define IDC_EDIT14                      1046
 #define ID_HISTOGRAM                    32771
 #define ID_PVALUE                       32773
+#define ID_SIGNIFICANCELEVEL            32774
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_RESOURCE_VALUE        318
+#define _APS_NEXT_COMMAND_VALUE         32775
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

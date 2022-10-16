@@ -12,7 +12,7 @@ public:
 	CFont* box_font;
 	bool init_mode = 1;
 	bool error_found;
-	bool error_type_status[11];
+	bool error_type_status[20];
 	CString error_message;
 	int m_sample_size;
 	ParameterDlg(CWnd* pParent = nullptr);   // стандартный конструктор
