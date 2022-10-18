@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "Sample.h"
 
 Sample::Sample() {}
 

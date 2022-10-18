@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "Chi2Histogram.h"
 
 Chi2Histogram::Chi2Histogram() {
 
@@ -68,6 +68,7 @@ void Chi2Histogram::SetData(const Sample& sample_, const Distribution& distr) {
 		hist_max_value = hist_min_value;
 	}
 
+	sample_size = sample_.get_size();
 	for (int i = 0; i < size; ++i) {
 		emp_points_sorted[i] = sample_.get_point_emp(i);
 		th_points_sorted[i] = {distr.get_ith_freq(i) * sample_.get_size(), distr.get_ith_value(i) };
@@ -112,14 +113,21 @@ void Chi2Histogram::merge_freqs() {
 	for (int i = 0; i < size; ++i) {
 		emp_freqs_merged[df] = 0;
 		th_freqs_merged[df] = 0;
+
 		for (; (i < size) && (th_freqs_merged[df] < 5); ++i) {
 			emp_freqs_merged[df] += emp_points_sorted[i].freq;
 			th_freqs_merged[df] += th_points_sorted[i].freq;
 		}
-		if (th_freqs_merged[df] < 5) {
+		double tmp = th_freqs_merged[df];
+
+		if (th_freqs_merged[df] < 5 && df >= 1) {
 			emp_freqs_merged[df - 1] += emp_freqs_merged[df];
 			th_freqs_merged[df - 1] += th_freqs_merged[df];
 			--df;
+		}
+		else if (th_freqs_merged[df] < 5) {
+			df = -1;
+			break;
 		}
 		--i;
 		++df;

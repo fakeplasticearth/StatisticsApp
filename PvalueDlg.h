@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include "pch.h"
+#include "ParameterDlg.h"
 #include "BPv1Doc.h"
-
+#include <vector>
 
 #define H0_BOX_START1X 177 // координата x левого верхнего угла первой линии edit box
 #define H0_BOX_START1Y 46 // координата y левого верхнего угла первой линии edit box

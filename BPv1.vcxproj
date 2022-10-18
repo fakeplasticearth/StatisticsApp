@@ -186,7 +186,10 @@
     <ClInclude Include="BPv1.h" />
     <ClInclude Include="BPv1Doc.h" />
     <ClInclude Include="BPv1View.h" />
+    <ClInclude Include="ChenSample.h" />
+    <ClInclude Include="Chi2Histogram.h" />
     <ClInclude Include="ClassView.h" />
+    <ClInclude Include="Distribution.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HistogramDlg.h" />
@@ -194,13 +197,16 @@
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="ParameterDlg.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PrimitiveSample.h" />
     <ClInclude Include="PROBDIST.H" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="PvalueDlg.h" />
     <ClInclude Include="R64M.hpp" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Sample.h" />
     <ClInclude Include="SlevelDlg.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>

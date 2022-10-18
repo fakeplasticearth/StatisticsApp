@@ -222,6 +222,7 @@ afx_msg void SlevelDlg::OnBnClickedOk() {
 
 	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT12), 3, 0);
 	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT13), 4, 0);
+	ProcessBoxData((CEdit*)GetDlgItem(IDC_EDIT14), 5, 0);
 
 	if (error_found)
 		AfxMessageBox(error_message);
@@ -244,10 +245,56 @@ afx_msg void SlevelDlg::OnBnClickedOk() {
 			((CEdit*)GetDlgItem(IDC_EDIT13))->GetLine(0, buff.GetBuffer(len), len);
 			buff.ReleaseBuffer(len);
 			int tmp_max_sample_size = _wtoi(buff);
-			if (tmp_max_sample_size < sum_freqs)
-				AfxMessageBox(error_message + GetErrorMessage(SMALLER_MAX_SAMPLE_SIZE));
+
+			bool df_less_than_one = 1;
+			int n = 0;
+
+			int* th_freqs_merged = new int[box_num + 3];
+
+			point_th* th_points_sorted = new point_th[box_num + 3];
+
+			for (int i = 0; i < box_num + 1; ++i) {
+				th_points_sorted[i] = { 1. * abs_freqs[i], values[i] };
+			}
+			std::sort(th_points_sorted, th_points_sorted + box_num + 1, [](const point_th& lval, const point_th& rval) {
+				return lval.value < rval.value;
+				});
+
+			while (df_less_than_one) {
+				++n;
+
+				int df = 0;
+
+				for (int i = 0; i < box_num + 1; ++i) {
+					th_freqs_merged[df] = 0;
+					for (; (i < box_num + 1) && (th_freqs_merged[df] * n / sum_freqs < 5); ++i) {
+						th_freqs_merged[df] += th_points_sorted[i].freq;
+					}
+					if (th_freqs_merged[df] * n / sum_freqs < 5 && df >= 1) {
+						th_freqs_merged[df - 1] += th_freqs_merged[df];
+						--df;
+					}
+					--i;
+					++df;
+				}
+				--df;
+
+				df_less_than_one = df < 1;
+			}
+			min_sample_size = n;
+
+			delete[]th_freqs_merged;
+			delete[]th_points_sorted;
+
+			if (tmp_max_sample_size < min_sample_size) {
+				CString tmp;
+				tmp.Format(L"%d", min_sample_size);
+				AfxMessageBox(error_message + L"Max sample size must be greater or equal than " + tmp + L"\n");
+			}
 			else
+			{
 				CDialog::OnOK();
+			}
 		}
 		else
 			AfxMessageBox(error_message + GetErrorMessage(COINCIDING_VALUES));

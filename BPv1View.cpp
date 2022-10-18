@@ -189,6 +189,7 @@ void CBPv1View::draw_histogram(CDC* dc) {
 	penBlack.CreatePen(PS_SOLID, 3, RGB(0, 0, 0));
 	CPen* pOldPen = dc->SelectObject(&penBlack);
 
+	CString tmp;
 	CRect rc;
 	GetClientRect(&rc);
 	int rc_width = rc.Width(), rc_height = rc.Height();
@@ -196,12 +197,35 @@ void CBPv1View::draw_histogram(CDC* dc) {
 	int max_freq_shift = max(9 * 6 - 0.05 * rc_width, 0); // In order to prevent vanishing freqs symbols
 
 	//Plot legend
-	draw_rectangle(dc, 0.6 * rc_width, 0.03 * rc_height, 0.95 * rc_width, 0.17 * rc_height, 2);
+	draw_rectangle(dc, 0.6 * rc_width, 0.03 * rc_height, 0.6 * rc_width + 270, 0.17 * rc_height, 2);
 	int sq_side = int(0.035 * rc_height);
 	draw_rectangle(dc, 0.62 * rc_width, 0.05 * rc_height, 0.62 * rc_width + sq_side, 0.05 * rc_height + sq_side, 0);
 	draw_rectangle(dc, 0.62 * rc_width, 0.12 * rc_height, 0.62 * rc_width + sq_side, 0.12 * rc_height + sq_side, 1);
 	dc->TextOut(0.62 * rc_width + sq_side + 0.02 * rc_width, 0.05 * rc_height + sq_side * 0.2 - 3, L"Theoretical frequencies");
 	dc->TextOut(0.62 * rc_width + sq_side + 0.02 * rc_width, 0.12 * rc_height + sq_side * 0.2 - 3, L"Empirical frequencies");
+
+	//Plot info (pvalue, chi2, df)
+	draw_rectangle(dc, 0.1 * rc_width, 0.03 * rc_height, 0.1 * rc_width + 300, 0.17 * rc_height, 2);
+
+	int df = doc->chi2histogram.get_df();
+	if (df < 1) {
+		dc->TextOut(0.12 * rc_width - 10, 0.05 * rc_height - 5, L"Can not apply");
+		dc->TextOut(0.12 * rc_width - 10, 0.09 * rc_height - 5, L"chi-square criterion.");
+		dc->TextOut(0.12 * rc_width - 10, 0.13 * rc_height - 5, L"Degree of freedom is < 1.");
+	}
+	else {
+		dc->TextOut(0.12 * rc_width - 10, 0.05 * rc_height - 5, L"Degree of freedom:");
+		dc->TextOut(0.12 * rc_width - 10, 0.09 * rc_height - 5, L"Chi-square:");
+		dc->TextOut(0.12 * rc_width - 10, 0.13 * rc_height - 5, L"P-value:");
+
+		tmp.Format(L"%d", doc->chi2histogram.get_df());
+		dc->TextOut(0.12 * rc_width + 150, 0.05 * rc_height - 5, tmp);
+		tmp.Format(L"%.4g", doc->chi2histogram.get_chi2());
+		dc->TextOut(0.12 * rc_width + 150, 0.09 * rc_height - 5, tmp);
+		tmp.Format(L"%.4g", doc->chi2histogram.get_pvalue());
+		dc->TextOut(0.12 * rc_width + 150, 0.13 * rc_height - 5, tmp);
+	}
+
 
 	//Axis separator
 	dc->MoveTo(max_freq_shift + 0.05 * rc_width, 0.95 * rc_height);
@@ -227,7 +251,6 @@ void CBPv1View::draw_histogram(CDC* dc) {
 	//Max value mark
 	dc->MoveTo(max_freq_shift + max_mark * rc_width, 0.95 * rc_height - 4);
 	dc->LineTo(max_freq_shift + max_mark * rc_width, 0.95 * rc_height + 4);
-	CString tmp;
 	tmp.Format(L"%g", doc->chi2histogram.hist_max_value);
 	dc->TextOut(max_freq_shift + max_mark * rc_width - 4, 0.95 * rc_height + 8, tmp);
 
@@ -268,25 +291,11 @@ void CBPv1View::draw_histogram(CDC* dc) {
 		draw_rectangle(dc, x1, y1, x2, y2, 1);
 	}
 
-	bool zero_far_from_max = abs(doc->chi2histogram.hist_max_value * prop) > 4;
-	bool zero_far_from_min = abs(doc->chi2histogram.hist_min_value * prop) > 4;
-	bool zero_after_start = max_freq_shift + (-doc->chi2histogram.hist_min_value) * prop + 0.05 * rc_width > 4;
-	bool zero_before_end = (-doc->chi2histogram.hist_min_value) * prop < max_freq_shift + 0.75 * rc_width - 4;
-	//Check if we can place zero value mark
-	if (zero_far_from_max && zero_far_from_min && zero_after_start && zero_before_end) {
-		dc->MoveTo(max_freq_shift + (- doc->chi2histogram.hist_min_value) * prop +
-			doc->chi2histogram.hist_min_dif_module / 2 * prop + 0.05 * rc_width, 0.95 * rc_height - 4);
-		dc->LineTo(max_freq_shift + (-doc->chi2histogram.hist_min_value) * prop +
-			doc->chi2histogram.hist_min_dif_module / 2 * prop + 0.05 * rc_width, 0.95 * rc_height + 20);
-		tmp.Format(L"%d", 0);
-		dc->TextOut(max_freq_shift + (-doc->chi2histogram.hist_min_value) * prop + shift + 0.05 * rc_width - 4, 0.95 * rc_height + 20, tmp);
-	}
-
 	//Marks for visibility
 	int max_round_mark = 1;
 	while (max_round_mark * 10 < doc->chi2histogram.hist_max_freq)
 		max_round_mark *= 10;
-	if (doc->chi2histogram.hist_max_freq / max_round_mark < 4)
+	if (doc->chi2histogram.hist_max_freq / max_round_mark < 4 && max_round_mark >= 10)
 		max_round_mark /= 2;
 	for (int i = max_round_mark; i < doc->chi2histogram.hist_max_freq; i += max_round_mark) {
 		int y = int((0.95 - 1.0 * i / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
@@ -333,9 +342,6 @@ void CBPv1View::OnHistogram()
 		}
 		doc->s->simulate(doc->sample_size);
 		doc->chi2histogram.SetData(*doc->s, doc->d0);
-
-		double pval = doc->chi2histogram.get_pvalue();
-		double chi = doc->chi2histogram.get_chi2();
 
 		doc->UpdateAllViews(0);
 	}
@@ -494,6 +500,8 @@ void CBPv1View::OnSignificancelevel()
 		doc->max_sample_size = d.m_max_sample_size;
 		doc->alpha = d.m_alpha;
 		doc->pvalue_sample_size = d.m_pvalue_sample_size;
+		doc->min_sample_size = d.min_sample_size;
+
 		for (int i = 0; i < d.box_num + 1; ++i) {
 			doc->sum_freqs_h0 += d.abs_freqs[i];
 		}
@@ -513,22 +521,20 @@ void CBPv1View::OnSignificancelevel()
 			doc->s = new ChenSample(doc->d0, doc->chen_parameter);
 			break;
 		}
-		int diff = doc->max_sample_size - doc->sum_freqs_h0;
-		if (diff + 1 >= 10) {
-			doc->slevel_arr_size = 10;
-			while ((doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size >= 1) {
-				doc->slevel_arr_size *= 10;
-			}
-			doc->slevel_arr_size /= 10;
+		int slevel_arr_size = 0;
+		double step = 0.;
+		if (doc->max_sample_size - doc->min_sample_size + 1 < 100) {
+			slevel_arr_size = doc->max_sample_size - doc->min_sample_size + 1;
+			step = 1.;
 		}
-		else
-			doc->slevel_arr_size = diff + 1;
-		doc->slevel_arr = new double[doc->slevel_arr_size + 2];
+		else {
+			slevel_arr_size = 101;
+			step = 1. * (doc->max_sample_size - doc->min_sample_size) / 100;
+		}
+		doc->slevel_arr = new double[slevel_arr_size + 2];
 
-		double step = (double)(doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size;
-
-		for (int i = 0; i < doc->slevel_arr_size + 1; ++i) {
-			int curr_n = int(i * step) + doc->sum_freqs_h0;
+		for (int i = 0; i < slevel_arr_size; ++i) {
+			int curr_n = int(i * step) + doc->min_sample_size;
 
 			double frac = 0.;
 			for (int j = 0; j < doc->pvalue_sample_size; ++j) {
@@ -601,7 +607,7 @@ void CBPv1View::draw_slevel_plot(CDC* dc) {
 	dc->LineTo(0.05 * rc_width - 10, 0.95 * rc_height + 10);
 
 	//Min sample size X axis mark
-	tmp.Format(L"%d", doc->sum_freqs_h0);
+	tmp.Format(L"%d", doc->min_sample_size);
 	dc->TextOut(0.05 * rc_width + 2, 0.95 * rc_height + 6, tmp);
 
 	//"0" mark
@@ -619,14 +625,24 @@ void CBPv1View::draw_slevel_plot(CDC* dc) {
 
 	dc->MoveTo(0.05 * rc_width, 0.95 * rc_height - doc->slevel_arr[0] * 0.8 * rc_height);
 
-	if (doc->max_sample_size == doc->sum_freqs_h0) {
+	if (doc->max_sample_size - doc->min_sample_size == 0) {
 		dc->LineTo(0.8 * rc_width, 0.95 * rc_height - doc->slevel_arr[0] * 0.8 * rc_height);
 	}
 	else {
-		double step = double(doc->max_sample_size - doc->sum_freqs_h0 + 1) / doc->slevel_arr_size;
-		for (int i = 0; i < doc->slevel_arr_size; ++i) {
+		int slevel_arr_size = 0;
+		double step = 0.;
+		if (doc->max_sample_size - doc->min_sample_size + 1 < 100) {
+			slevel_arr_size = doc->max_sample_size - doc->min_sample_size + 1;
+			step = 1.;
+		}
+		else {
+			slevel_arr_size = 101;
+			step = 1. * (doc->max_sample_size - doc->min_sample_size) / 100;
+		}
+
+		for (int i = 0; i < slevel_arr_size - 1; ++i) {
 			double x = 0.05 * rc_width + int((i + 1) * step) * (
-				0.8 * rc_width) / (doc->max_sample_size - doc->sum_freqs_h0 + 1);
+				0.8 * rc_width) / (doc->max_sample_size - doc->min_sample_size);
 			dc->LineTo(x, 0.95 * rc_height - doc->slevel_arr[i + 1] * 0.8 * rc_height);
 		}
 	}

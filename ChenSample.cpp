@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "ChenSample.h"
 
 ChenSample::ChenSample(const Distribution& distr, int m_) : Sample(distr) {
     m = m_;
