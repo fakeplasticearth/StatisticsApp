@@ -124,8 +124,6 @@ CString ParameterDlg::GetErrorMessage(int error_code) {
 		return L"Pvalue sample size must not be greater than 10000.\n";
 	case TOO_SMALL_MAX_SAMPLE_SIZE:
 		return L"Max sample size must be greater than 0.\n";
-	case SMALLER_MAX_SAMPLE_SIZE:
-		return L"Max sample size must be equal or greater than sum of frequencies.\n";
 	case SMALL_ALPHA:
 		return L"Significance level must be greater than 0.\n";
 	case BIG_ALPHA:

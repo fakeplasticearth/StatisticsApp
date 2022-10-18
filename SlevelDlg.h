@@ -47,5 +47,6 @@ public:
 	int m_parameter;
 	int m_pvalue_sample_size;
 	int m_max_sample_size;
+	int min_sample_size;
 	double m_alpha;
 };
