@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "Util.h"
 
 // Диалоговое окно ParameterDlg
 

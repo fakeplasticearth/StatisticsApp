@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "PrimitiveSample.h"
 
 PrimitiveSample::PrimitiveSample(const Distribution& distr, int freq_sum) : Sample(distr) {
 	util_size = freq_sum;

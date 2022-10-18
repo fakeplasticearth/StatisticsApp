@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "BPv1Doc.h"
+#include "Chi2Histogram.h"
 
 Chi2Histogram::Chi2Histogram() {
 
