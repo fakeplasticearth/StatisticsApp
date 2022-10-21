@@ -72,11 +72,9 @@ void Chi2Histogram::SetData(const Sample& sample_, const Distribution& distr) {
 	for (int i = 0; i < size; ++i) {
 		emp_points_sorted[i] = sample_.get_point_emp(i);
 		th_points_sorted[i] = {distr.get_ith_freq(i) * sample_.get_size(), distr.get_ith_value(i) };
-		double tmp1 = emp_points_sorted[i].value;
-		double tmp2 = th_points_sorted[i].value;
 		hist_max_value = max(max(emp_points_sorted[i].value, th_points_sorted[i].value), hist_max_value);
 		hist_min_value = min(min(emp_points_sorted[i].value, th_points_sorted[i].value), hist_min_value);
-		hist_max_freq = max(max(emp_points_sorted[i].freq, th_points_sorted[i].freq), hist_max_freq);
+		hist_max_freq = max(max(emp_points_sorted[i].freq, int(ceil(th_points_sorted[i].freq))), hist_max_freq);
 	}
 	std::sort(emp_points_sorted, emp_points_sorted + size, [](const point_emp& lval, const point_emp& rval) {
 		return lval.value < rval.value;
@@ -102,7 +100,7 @@ point_th Chi2Histogram::get_th_point(int index) {
 	return th_points_sorted[index];
 }
 
-int Chi2Histogram::get_size() {
+int Chi2Histogram::get_size() const{
 	return size;
 }
 
@@ -148,6 +146,31 @@ double Chi2Histogram::get_chi2() {
 	if (chi2 == UNSPECIFIED_VALUE)
 		calc_chi2();
 	return chi2;
+}
+
+double Chi2Histogram::get_hist_max_value() const
+{
+	return hist_max_value;
+}
+
+double Chi2Histogram::get_hist_min_value() const
+{
+	return hist_min_value;
+}
+
+double Chi2Histogram::get_hist_min_dif_module() const
+{
+	return hist_min_dif_module;
+}
+
+int Chi2Histogram::get_hist_max_freq() const
+{
+	return hist_max_freq;
+}
+
+int Chi2Histogram::get_sample_size() const
+{
+	return sample_size;
 }
 
 int Chi2Histogram::get_df() {

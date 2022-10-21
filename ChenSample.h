@@ -3,6 +3,9 @@
 #include "Sample.h"
 #include "R64M.hpp"
 
+/*!
+	\brief 
+*/
 class ChenSample : public Sample {
 private:
 	unsigned int gen_col_index() override;
