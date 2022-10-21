@@ -251,40 +251,40 @@ void CBPv1View::draw_histogram(CDC* dc) {
 	//Max value mark
 	dc->MoveTo(max_freq_shift + max_mark * rc_width, 0.95 * rc_height - 4);
 	dc->LineTo(max_freq_shift + max_mark * rc_width, 0.95 * rc_height + 4);
-	tmp.Format(L"%g", doc->chi2histogram.hist_max_value);
+	tmp.Format(L"%g", doc->chi2histogram.get_hist_max_value());
 	dc->TextOut(max_freq_shift + max_mark * rc_width - 4, 0.95 * rc_height + 8, tmp);
 
 	//Max frequency mark
 	dc->MoveTo(max_freq_shift + 0.05 * rc_width - 4, int(0.2 * rc_height) + 1);
 	dc->LineTo(max_freq_shift + 0.05 * rc_width + 4, int(0.2 * rc_height) + 1);
-	tmp.Format(L"%d", doc->chi2histogram.hist_max_freq);
+	tmp.Format(L"%d", doc->chi2histogram.get_hist_max_freq());
 	dc->TextOut(max_freq_shift + 0.05 * rc_width - 5 - (long long)tmp.GetLength() * 8, int(0.2 * rc_height) - 6, tmp);
 
-	double prop = ((max_mark - 0.05) * rc_width) / (doc->chi2histogram.hist_max_value - doc->chi2histogram.hist_min_value
-		+ doc->chi2histogram.hist_min_dif_module / 2); // Scale (values -> pixels)
-	double shift = min(doc->chi2histogram.hist_min_dif_module / 2 * prop, 0.15 * rc_width); // Half of theoretical bar width
+	double prop = ((max_mark - 0.05) * rc_width) / (doc->chi2histogram.get_hist_max_value() - doc->chi2histogram.get_hist_min_value()
+		+ doc->chi2histogram.get_hist_min_dif_module() / 2); // Scale (values -> pixels)
+	double shift = min(doc->chi2histogram.get_hist_min_dif_module() / 2 * prop, 0.15 * rc_width); // Half of theoretical bar width
 
 	//Min value mark
-	dc->MoveTo(max_freq_shift + int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width), 0.95 * rc_height - 4);
-	dc->LineTo(max_freq_shift + int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width), 0.95 * rc_height + 4);
-	tmp.Format(L"%g", doc->chi2histogram.hist_min_value);
-	dc->TextOut(max_freq_shift + int((doc->chi2histogram.hist_min_dif_module / 2) * prop + 0.05 * rc_width) - 4, int(0.95 * rc_height) + 8, tmp);
+	dc->MoveTo(max_freq_shift + int((doc->chi2histogram.get_hist_min_dif_module() / 2) * prop + 0.05 * rc_width), 0.95 * rc_height - 4);
+	dc->LineTo(max_freq_shift + int((doc->chi2histogram.get_hist_min_dif_module() / 2) * prop + 0.05 * rc_width), 0.95 * rc_height + 4);
+	tmp.Format(L"%g", doc->chi2histogram.get_hist_min_value());
+	dc->TextOut(max_freq_shift + int((doc->chi2histogram.get_hist_min_dif_module() / 2) * prop + 0.05 * rc_width) - 4, int(0.95 * rc_height) + 8, tmp);
 
 	for (int i = 0; i < doc->chi2histogram.get_size(); ++i) {
 		//Drawing bar for theoretical value
-		double bar_center_th = (doc->chi2histogram.get_th_point(i).value - doc->chi2histogram.hist_min_value
-			+ doc->chi2histogram.hist_min_dif_module / 2) * prop; // in pixels
+		double bar_center_th = (doc->chi2histogram.get_th_point(i).value - doc->chi2histogram.get_hist_min_value()
+			+ doc->chi2histogram.get_hist_min_dif_module() / 2) * prop; // in pixels
 		int x1 = int(max_freq_shift + 0.05 * rc_width + bar_center_th - shift);
-		int y1 = int((0.95 - doc->chi2histogram.get_th_point(i).freq / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+		int y1 = int((0.95 - doc->chi2histogram.get_th_point(i).freq / doc->chi2histogram.get_hist_max_freq() * 0.75) * rc_height);
 		int x2 = int(max_freq_shift + 0.05 * rc_width + bar_center_th + shift);
 		int y2 = int(0.95 * rc_height + 1);
 		draw_rectangle(dc, x1, y1, x2, y2, 0);
 
 		//Drawing bar for empirical value
-		double bar_center_emp = (doc->chi2histogram.get_emp_point(i).value - doc->chi2histogram.hist_min_value
-			+ doc->chi2histogram.hist_min_dif_module / 2) * prop; // in pixels
+		double bar_center_emp = (doc->chi2histogram.get_emp_point(i).value - doc->chi2histogram.get_hist_min_value()
+			+ doc->chi2histogram.get_hist_min_dif_module() / 2) * prop; // in pixels
 		x1 = int(max_freq_shift + 0.05 * rc_width + bar_center_emp - shift / 2);
-		y1 = int((0.95 - 1.0 * doc->chi2histogram.get_emp_point(i).freq / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+		y1 = int((0.95 - 1.0 * doc->chi2histogram.get_emp_point(i).freq / doc->chi2histogram.get_hist_max_freq() * 0.75) * rc_height);
 		x2 = int(max_freq_shift + 0.05 * rc_width + bar_center_emp + shift / 2);
 
 		double tmp1 = doc->chi2histogram.get_emp_point(i).freq;
@@ -293,12 +293,12 @@ void CBPv1View::draw_histogram(CDC* dc) {
 
 	//Marks for visibility
 	int max_round_mark = 1;
-	while (max_round_mark * 10 < doc->chi2histogram.hist_max_freq)
+	while (max_round_mark * 10 < doc->chi2histogram.get_hist_max_freq())
 		max_round_mark *= 10;
-	if (doc->chi2histogram.hist_max_freq / max_round_mark < 4 && max_round_mark >= 10)
+	if (doc->chi2histogram.get_hist_max_freq() / max_round_mark < 4 && max_round_mark >= 10)
 		max_round_mark /= 2;
-	for (int i = max_round_mark; i < doc->chi2histogram.hist_max_freq; i += max_round_mark) {
-		int y = int((0.95 - 1.0 * i / doc->chi2histogram.hist_max_freq * 0.75) * rc_height);
+	for (int i = max_round_mark; i < doc->chi2histogram.get_hist_max_freq(); i += max_round_mark) {
+		int y = int((0.95 - 1.0 * i / doc->chi2histogram.get_hist_max_freq() * 0.75) * rc_height);
 		if (y > int(0.2 * rc_height) + 10) {
 			dc->MoveTo(max_freq_shift + 0.05 * rc_width - 4, y);
 			dc->LineTo(max_freq_shift + 0.05 * rc_width + 4, y);
