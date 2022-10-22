@@ -3,10 +3,10 @@
 #include "ChenSample.h"
 #include "Chi2Histogram.h"
 
+/*!
+ *  Пример: вычисление p-value для критерия согласия Хи-квадрат.
+*/
 int main() {
-	/*!
-	* Пример: вычисление p-value для критерия согласия Хи-квадрат.
-	*/
 
 	//Необходимо задать seed для генерации случайных величин 
 	rninit(442);
@@ -27,6 +27,5 @@ int main() {
 
 	//Вычисляем p-value
 	double pval = chi2.get_pvalue();
-
 	return 0;
 }
