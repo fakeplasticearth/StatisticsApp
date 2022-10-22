@@ -444,7 +444,7 @@ void CBPv1View::OnPvalue()
 			doc->s = new PrimitiveSample(doc->d0, doc->sum_freqs_h0);
 			break;
 		case 1:
-			doc->s = new ChenSample(doc->d0, 9);
+			doc->s = new ChenSample(doc->d0, doc->chen_parameter);
 			break;
 		}
 		doc->pvalues_arr = new double[doc->pvalue_sample_size];
