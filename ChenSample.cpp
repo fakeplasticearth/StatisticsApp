@@ -42,7 +42,7 @@ ChenSample& ChenSample::operator=(ChenSample& other) {
 	return *this;
 }
 
-unsigned int ChenSample::gen_col_index() {
+unsigned int ChenSample::simulate_rv() {
     double prv = rnunif();
     int j = (int)(prv * m);
     int z = r[j];

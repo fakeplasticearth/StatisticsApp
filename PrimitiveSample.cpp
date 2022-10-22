@@ -25,7 +25,7 @@ PrimitiveSample& PrimitiveSample::operator=(PrimitiveSample& other) {
 	return *this;
 }
 
-unsigned int PrimitiveSample::gen_col_index() {
+unsigned int PrimitiveSample::simulate_rv() {
 	double res = rnunif();
 	return util_arr[(int)(rnunif() * util_size)];
 }

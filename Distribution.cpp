@@ -11,7 +11,7 @@ Distribution::Distribution(double* values_, double* p, int size_) : size(size_) 
 	}
 }
 
-Distribution::Distribution(const Distribution& distr) : size(distr.size), name(distr.name) {
+Distribution::Distribution(const Distribution& distr) : size(distr.size) {
 	values = new double[size];
 	probs = new double[size];
 	for (int i = 0; i < size; ++i) {
@@ -20,18 +20,16 @@ Distribution::Distribution(const Distribution& distr) : size(distr.size), name(d
 	}
 }
 
-Distribution::Distribution(Distribution&& distr): values(distr.values), probs(distr.probs), size(distr.size), name(distr.name) {
+Distribution::Distribution(Distribution&& distr): values(distr.values), probs(distr.probs), size(distr.size) {
 	distr.size = 0;
 	distr.values = nullptr;
 	distr.probs = nullptr;
-	distr.name = "";
 }
 
 void Distribution::swap(Distribution& distr) {
 	std::swap(values, distr.values);
 	std::swap(probs, distr.probs);
 	std::swap(size, distr.size);
-	std::swap(name, distr.name);
 }
 
 Distribution& Distribution::operator=(Distribution distr) {
@@ -59,10 +57,6 @@ double Distribution::get_ith_value(unsigned int index) const{
 
 double Distribution::get_ith_freq(unsigned int index) const {
 	return probs[index];
-}
-
-std::string Distribution::get_name() {
-	return name;
 }
 
 void Distribution::set_parameters(double* values_, int* abs_freqs_, int size_, int sum_freqs_) {

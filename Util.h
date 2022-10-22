@@ -17,11 +17,17 @@
 #define BIG_ALPHA 14
 #define UNSPECIFIED_VALUE -1
 
+/*!
+* Элемент сгруппированной выборки, пара частота и значение.
+*/
 struct point_emp {
 	int freq;
 	double value;
 };
 
+/*!
+* Структура, с помощью которой задается произвольное дискретное распределение, пара вероятность и значение.
+*/
 struct point_th {
 	double freq, value;
 };

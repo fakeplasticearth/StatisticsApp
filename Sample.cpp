@@ -49,7 +49,7 @@ void Sample::simulate(unsigned int new_size) {
 	size = new_size;
 	values = new double[size];
 	for (int i = 0; i < size; ++i) {
-		unsigned int index = gen_col_index();
+		unsigned int index = simulate_rv();
 		values[i] = distribution.get_ith_value(index);
 		grouped_points[index].freq++;
 	}

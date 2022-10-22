@@ -218,6 +218,7 @@
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="Distribution.cpp" />
     <ClCompile Include="FileView.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="HistogramDlg.cpp" />
